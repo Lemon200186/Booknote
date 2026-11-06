@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>书房 · 读书复盘</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ECEEEA;--panel:#F7F8F5;--ink:#1D2A2B;--sub:#5E6B6A;--line:#CBD0CA;--acc:#2F5D58;--acc-ink:#fff;--mark:#E6DDBF;--done:#8A6D3B;--done-bg:#F1ECDD;--acc-bg:#E3ECE9;--coach:#4A5E9A;--coach-bg:#E8ECF6;--serif:"Noto Serif SC","Songti SC","Source Han Serif SC",serif;--sans:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151B1B;--panel:#1C2424;--ink:#E4E8E3;--sub:#92A09E;--line:#2F3B3A;--acc:#7FB5AC;--acc-ink:#0F1616;--mark:#3A3722;--done:#B8955A;--done-bg:#2A2819;--acc-bg:#1F2D2A;--coach:#9DB1E6;--coach-bg:#1E2438;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#151B1B;--panel:#1C2424;--ink:#E4E8E3;--sub:#92A09E;--line:#2F3B3A;--acc:#7FB5AC;--acc-ink:#0F1616;--mark:#3A3722;--done:#B8955A;--done-bg:#2A2819;--acc-bg:#1F2D2A;--coach:#9DB1E6;--coach-bg:#1E2438;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.85 var(--serif)}
+.wrap{max-width:720px;margin:0 auto;padding:20px 20px 80px}
+header{display:flex;align-items:baseline;gap:20px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:28px}
+header h1{font-size:22px;margin:0 12px 0 0;letter-spacing:.2em;font-weight:600}
+nav{display:flex;gap:18px;font:14px var(--sans);flex:1}
+nav a,.lnk{color:var(--sub);text-decoration:none;cursor:pointer;background:none;border:0;padding:4px 0;font:inherit}
+nav a.on{color:var(--ink);border-bottom:2px solid var(--acc)}
+nav a:hover,.lnk:hover{color:var(--ink)}
+h2{font-size:15px;font-weight:600;color:var(--sub);margin:36px 0 10px;font-family:var(--sans)}
+h3{font-size:26px;margin:0 0 4px;line-height:1.4;font-weight:600}
+.meta{font:13px var(--sans);color:var(--sub)}
+.row{display:block;padding:14px 0;border-bottom:1px solid var(--line);color:inherit;text-decoration:none;cursor:pointer}
+.row:hover .rt{color:var(--acc)}
+.rt{font-weight:600;font-size:18px}
+.snip{color:var(--sub);font-size:15px;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.resurface{background:var(--panel);border-left:3px solid var(--acc);padding:16px 20px;margin-top:8px}
+.resurface p{margin:8px 0}
+button.pri,button.sec{font:15px var(--sans);padding:9px 18px;border-radius:4px;cursor:pointer;border:1px solid var(--acc)}
+button.pri{background:var(--acc);color:var(--acc-ink)}
+button.sec{background:transparent;color:var(--acc)}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+input,textarea,select{width:100%;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:9px 12px}
+textarea{resize:vertical;line-height:1.8}
+label{display:block;font:13px var(--sans);color:var(--sub);margin:18px 0 6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;align-items:center}
+.q{background:var(--mark);padding:10px 14px;margin:8px 0;border-radius:3px;font-size:15.5px}
+.q small{display:block;font:12px var(--sans);color:var(--sub)}
+.qrow{display:grid;grid-template-columns:1fr 84px 32px;gap:8px;margin-bottom:8px;align-items:start}
+.cn{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+.coach{margin-top:20px;border-top:1px solid var(--line);padding-top:6px;white-space:pre-wrap;font-size:16px}
+.empty{color:var(--sub);padding:28px 0;font-size:16px}
+blockquote{margin:12px 0;padding:2px 0 2px 14px;border-left:3px solid var(--mark)}
+details.add summary{cursor:pointer;color:var(--acc);font:15px var(--sans);padding:6px 0}
+.pt{border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px}.prow2{display:grid;grid-template-columns:1fr 28px;gap:8px}.stc{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.lh{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:32px 0 12px}.lh .t{font:600 16px var(--sans);color:var(--ink)}.lh .s{font:13px var(--sans);color:var(--sub);margin-top:2px}.lh button{padding:6px 14px;font-size:14px;white-space:nowrap}
+.ea{display:block;width:100%;text-align:left;border:1px dashed var(--line);background:transparent;color:var(--sub);font:15px var(--sans);padding:16px 18px;border-radius:6px;cursor:pointer}.ea:hover{border-color:var(--acc);color:var(--acc)}
+.en{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:12px}.en textarea{border:0;background:transparent;padding:6px 0;resize:vertical}.en .meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.fq{margin:8px 0 12px;padding:6px 14px;border-left:3px solid var(--acc);color:var(--ink);font-size:16px}.fl{font:12px var(--sans);color:var(--sub);margin-top:10px}
+details.more{margin-top:10px}details.more summary{cursor:pointer;color:var(--acc);font:14px var(--sans);padding:6px 0}
+.tg{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}.tag{font:12px var(--sans);padding:2px 8px;border:1px solid var(--acc);border-radius:12px;color:var(--acc);background:transparent;display:inline-flex;align-items:center;gap:4px}.tag button{background:none;border:0;color:inherit;cursor:pointer;padding:0 0 0 2px;font-size:11px}.tag.sug{border-style:dashed;cursor:pointer;opacity:.9}
+.tpick{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:12px}
+.sbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.sbar input{flex:1 1 220px;width:auto}.sbar select{flex:0 1 150px;width:auto}
+.sh{display:flex;align-items:center;gap:8px;margin:30px 0 12px;font:600 15px var(--sans);color:var(--ink)}.sh i{width:9px;height:9px;border-radius:50%;background:var(--acc);display:inline-block}.sh b{font-weight:400;color:var(--sub);font-size:13px}.sh-done i{background:var(--sub)}.sh-want i{background:transparent;border:1.5px solid var(--sub)}
+.bk{display:block;text-decoration:none;color:inherit}.bk:hover .rt{color:var(--acc)}
+.bk-r{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:6px;padding:14px 16px;margin-bottom:12px}.bk-t{display:flex;justify-content:space-between;align-items:baseline;gap:12px}.bk-t .rt{font-size:20px}.go{font:13px var(--sans);color:var(--acc);white-space:nowrap}.bk-n{font:13px var(--sans);color:var(--sub);margin-top:8px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.bk-d{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}.bk-d .ck{color:var(--sub);font:14px var(--sans);margin-top:3px}.bk-d .rt{font-size:16px;font-weight:400}
+.bk-w{padding:8px 12px;border:1px dashed var(--line);border-radius:6px;margin-bottom:8px;color:var(--sub)}.bk-w .rt{font-size:15px;font-weight:400}
+.rv{background:var(--mark);border-radius:8px;padding:16px 20px;margin-bottom:22px}.rv-h{font:600 12px var(--sans);letter-spacing:.08em;color:var(--sub);margin-bottom:8px}.rv blockquote{margin:0 0 8px;padding:0;border:0;font-size:18px;line-height:1.7;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.rv .lnk{font-size:14px;color:var(--acc)}.rv .lnk::after{content:' ›'}
+.sh{margin:34px 0 14px}.sh span{font-size:17px;font-weight:600;padding:4px 14px;border-radius:16px;background:var(--acc);color:var(--acc-ink)}.sh b{font-size:15px}.sh i{display:none}
+.sh-done span{background:var(--done);color:#fff}.sh-want span{background:transparent;color:var(--sub);border:1.5px dashed var(--sub)}
+.bk .meta{font-size:14px}
+.bk-r{background:var(--acc-bg);border:1px solid var(--acc);border-left:8px solid var(--acc);padding:18px 20px;margin-bottom:14px}.bk-t .rt{font-size:24px}.go{background:var(--acc);color:var(--acc-ink);padding:5px 14px;border-radius:16px;font-size:14px}.bk-n{font-size:15px;margin-top:10px}
+.bk-d{background:var(--done-bg);border:0;border-left:6px solid var(--done);border-radius:6px;padding:14px 16px;margin-bottom:10px;align-items:center}.bk-d .ck{width:28px;height:28px;border-radius:50%;background:var(--done);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;margin:0;flex:none}.bk-d .rt{font-size:21px;font-weight:600}
+.bk-w .rt{font-size:17px}
+.en.qa{background:var(--coach-bg);border:1px solid var(--coach);border-left:6px solid var(--coach);padding:14px 16px}
+.qa .qh{display:flex;justify-content:space-between;align-items:center;gap:12px}.qbadge{background:var(--coach);color:#fff;font:600 13px var(--sans);padding:3px 12px;border-radius:14px;white-space:nowrap}
+.qa .q{background:transparent;padding:0;margin:14px 0 8px;font-size:18px;font-weight:600;color:var(--ink)}
+.qa textarea{border:1px solid var(--coach)!important;background:var(--bg)!important}.qa .fq{border-left-color:var(--coach)}
+.chip.coach{border-color:var(--coach);color:var(--coach)}.chip.coach.on{background:var(--coach);border-color:var(--coach);color:#fff}
+#bcoach{border-color:var(--coach);color:var(--coach)}#bcoach:hover{background:var(--coach-bg)}[data-ask]{color:var(--coach)!important}
+#nf{align-items:center;gap:10px}#nf .chip{font:15px/1.4 var(--sans);padding:8px 18px;border-radius:18px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;height:auto;margin:0;box-sizing:border-box}#nf .chip span{margin-left:0!important}
+.soft{opacity:.55}
+.menu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14);min-width:270px;padding:6px}.menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:10px 12px;border-radius:6px;cursor:pointer;font:600 15px var(--sans);color:var(--ink)}.menu button small{display:block;font:400 12px var(--sans);color:var(--sub);margin-top:2px}.menu button:hover{background:var(--bg)}#nadd::after{content:' ▾';font-size:12px}
+.demobar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--mark);padding:10px 14px;border-radius:6px;margin:-12px 0 18px;font:13px var(--sans)}.demobar span{flex:1 1 240px}.demobar .pri{padding:6px 14px;font-size:13px}
+.back{display:inline-block;font:15px var(--sans);color:var(--acc);text-decoration:none;margin-bottom:14px;padding:4px 0}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px}.tabs .chip{white-space:nowrap}a.chip{text-decoration:none;display:inline-block}
+.xo{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}.xp{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:24px;max-width:420px;width:100%}.xf{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+#xroot{position:fixed;left:-99999px;top:0;width:760px;padding:48px 56px;background:#fff;color:#1D2A2B;font:18px/1.9 "Noto Serif SC","Songti SC",serif}#xroot h1{font-size:30px;margin:0 0 8px}#xroot h2{font-size:24px;margin:40px 0 4px;border-top:1px solid #ccc;padding-top:24px}#xroot h3{font-size:16px;color:#2F5D58;margin:22px 0 6px;font-family:sans-serif}#xroot p{margin:6px 0}#xroot .m{color:#6b7776;font:14px sans-serif}#xroot blockquote{margin:10px 0;padding-left:16px;border-left:3px solid #C9BE92}
+.sechead{display:flex;justify-content:space-between;align-items:flex-end;margin-top:36px}.sechead h2{margin:0 0 10px}
+.prow{display:grid;grid-template-columns:1fr 104px 28px;gap:8px;margin-bottom:8px;align-items:start}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}.chip{font:13px var(--sans);padding:4px 14px;border:1px solid var(--line);border-radius:14px;background:none;color:var(--sub);cursor:pointer}.chip.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+@media (max-width:520px){.grid{grid-template-columns:1fr}.qrow{grid-template-columns:1fr 70px 30px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>书房</h1><nav id="nav"></nav><span class="meta" id="sync" aria-live="polite"></span><button class="lnk" id="lo" hidden>退出登录</button><button class="lnk" id="lang" aria-label="语言 / Language">EN</button></header>
+<div id="demobar" class="demobar" hidden><span>你正在体验示例：数据只保存在这台设备上，AI 功能未开通。</span><button class="lnk" id="demoreset">重置示例</button><button class="pri" id="demoexit">登录 / 注册</button></div>
+<main id="app"></main>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+let KEY='shufang.v1';let mem=null;
+function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return mem||{books:[],reviews:[]}}
+let S=load();
+function flash(){const e=document.getElementById('svst');if(e)e.textContent='已保存 '+new Date().toTimeString().slice(0,5)}
+function save(){mem=S;touch();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}flash()}
+const today=()=>new Date().toISOString().slice(0,10);
+const rich=t=>esc(t).replace(/\[\[([^\]]+)\]\]/g,(m,n)=>'<a class="cn" href="#/concept/'+encodeURIComponent(n.trim())+'">'+n.trim()+'</a>').replace(/\n/g,'<br>');
+const concepts=r=>{const o=[];((r.thought||'')+' '+(r.action||'')).replace(/\[\[([^\]]+)\]\]/g,(m,n)=>o.push(n.trim()));(r.tags||[]).forEach(t=>o.push(t));return [...new Set(o)]};
+const book=id=>S.books.find(b=>b.id===id);
+const revs=id=>S.reviews.filter(r=>r.bookId===id).sort((a,b)=>b.date.localeCompare(a.date));
+const STATUS={reading:'在读',done:'读完',want:'想读'};
+let sample=null,downloads=null,assetsApi=null,canOcr=false;
+downloads={save:async({filename,data})=>{const a=document.createElement('a');a.href=URL.createObjectURL(data);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}};
+const b64=blob=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const u=String(r.result);ok({media_type:blob.type||'image/jpeg',data:u.slice(u.indexOf(',')+1)})};r.onerror=no;r.readAsDataURL(blob)});
+async function aiCall(body,signal){const {data}=await sb.auth.getSession();const tok=data.session&&data.session.access_token;let r;try{r=await fetch('/.netlify/functions/ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(tok||'')},body:JSON.stringify(body),signal})}catch(e){const er=new Error('network');er.code=e&&e.name==='AbortError'?'cancelled':'upstream_error';throw er}
+let j={};try{j=await r.json()}catch(e){}if(!r.ok){const er=new Error(j.error||'ai');er.code=j.code||(r.status===429?'rate_limited':r.status===401?'session_expired':r.status===504?'upstream_error':'upstream_error');throw er}return j}
+sample=async(prompt,opts)=>{opts=opts||{};const body={prompt,tier:opts.modelTier==='quick'?'quick':'default'};if(opts.images&&opts.images.length)body.images=await Promise.all(opts.images.map(b64));const j=await aiCall(body,opts.signal);if(opts.onText)opts.onText({text:j.text});return {text:j.text}};
+sample.json=async(prompt,opts)=>{const j=await aiCall({prompt,tier:'quick',json:true});try{const m=j.text.match(/[\[{][\s\S]*[\]}]/);return JSON.parse(m?m[0]:j.text)}catch(e){const er=new Error('invalid_json');er.code='invalid_json';throw er}};
+sample.limits=async()=>({images:true});canOcr=true;
+const sigCache={};
+async function signedUrl(path){if(sigCache[path]&&sigCache[path].t>Date.now())return sigCache[path].u;const {data,error}=await sb.storage.from('photos').createSignedUrl(path,3600);if(error||!data)throw error||new Error('sign');sigCache[path]={u:data.signedUrl,t:Date.now()+3000*1000};return data.signedUrl}
+function hydrateImgs(){document.querySelectorAll('img[data-sp]').forEach(async im=>{if(im.dataset.done)return;im.dataset.done='1';try{im.src=await signedUrl(im.dataset.sp)}catch(e){im.alt='图片加载失败'}})}
+new MutationObserver(()=>hydrateImgs()).observe(document.body,{childList:true,subtree:true});
+assetsApi={upload:async blob=>{const path=me+'/'+uid()+'.jpg';const {error}=await sb.storage.from('photos').upload(path,blob,{contentType:'image/jpeg'});if(error)throw error;return {id:path}},delete:async id=>{await sb.storage.from('photos').remove([id])}};
+
+
+function nav(h){const on=k=>h.startsWith(k)?' class="on"':'';
+$('#nav').innerHTML='<a href="#/"'+(h==='#/'||h===''||h.startsWith('#/book')||h.startsWith('#/edit')?' class="on"':'')+'>书架</a>'+(allNotes().length>=3?'<a href="#/time"'+(h.startsWith('#/time')||h.startsWith('#/concept')?' class="on"':'')+'>回顾</a>':'')+(downloads?'<button class="lnk" id="exp">导出</button>':'');
+const e=$('#exp');if(e)e.onclick=openExport}
+function exportMd(){let md='# 书房\n\n';S.books.forEach(b=>{md+='## '+b.title+(b.author?'（'+b.author+(b.country?'，'+b.country:'')+'）':'')+'\n\n'+(b.category?'分类：'+b.category+'\n\n':'');[['内容简介','summary'],['核心观点','points'],['我最喜欢的话','favs'],['我的思考与延伸','thought'],['我会怎么做','action']].forEach(([l,k])=>{const v=k==='thought'?(b.thought||b.note):k==='points'?getPts(b).filter(p=>p.text.trim()).map(p=>'- '+p.text+(p.stance?'（立场：'+p.stance+'）':'')+(p.note?'——'+p.note:'')).join('\n'):k==='favs'?getFvs(b).filter(q=>q.text.trim()).map(q=>'> '+q.text+(q.page?'（p.'+q.page+'）':'')+(q.note?'——'+q.note:'')).join('\n'):b[k];if(v)md+='**'+l+'**\n\n'+v+'\n\n'});if((b.qa||[]).length)md+='**教练提问与我的回答**\n\n'+b.qa.map(x=>x.q+'\n\n回答：'+(x.a||'（未回答）')).join('\n\n')+'\n\n';revs(b.id).reverse().forEach(r=>{md+='### '+(r.chapter||'摘录与批注')+' · '+r.date+'\n\n';(r.quotes||[]).forEach(q=>md+='> '+q.text+(q.page?' （p.'+q.page+'）':'')+'\n\n');if(r.thought)md+='**思考**\n\n'+r.thought+'\n\n';if(r.action)md+='**行动**\n\n'+r.action+'\n\n'})});
+downloads.save({filename:'书房.md',data:new Blob([md],{type:'text/markdown'})}).catch(()=>{})}
+
+function route(){const h=location.hash||'#/';$('#demobar').hidden=!demo||!!me;if(!me&&!demo){$('#nav').innerHTML='';$('#app').innerHTML=vLogin();bindLogin();return}nav(h);const p=h.split('/').map(decodeURIComponent);const a=$('#app');
+if(p[1]==='book')a.innerHTML=vBook(p[2]);
+else if(p[1]==='edit'){a.innerHTML=vEdit(p[2],p[3]);bindEdit(p[2],p[3])}
+else if(p[1]==='time')a.innerHTML=vTime();
+else if(p[1]==='concepts')a.innerHTML=vConcepts();
+else if(p[1]==='concept')a.innerHTML=vConcept(p[2]);
+else{a.innerHTML=vHome();bindHome()}
+document.querySelectorAll('.bf').forEach(el=>el.oninput=()=>{const b=book(el.dataset.id);if(b){b[el.dataset.f]=el.value;if(['thought','action'].includes(el.dataset.f))b.updated=today();save()}});
+if(p[1]==='book'){bindStream(p[2]);bindCoach(p[2])}
+window.scrollTo(0,0)}
+window.addEventListener('hashchange',route);
+
+const COUNTRIES=['中国','美国','英国','日本','法国','德国','俄罗斯','意大利','加拿大','澳大利亚','韩国','印度','奥地利','瑞士','荷兰','其他'];
+const countryList=()=>'<datalist id="countries">'+[...new Set([...COUNTRIES,...S.books.map(b=>b.country).filter(Boolean)])].map(c=>'<option value="'+esc(c)+'">').join('')+'</datalist>';
+const PRESET=['商业与管理','心理学','科技与AI','历史与社科','哲学','文学','传记','其他'];let catF='';
+const allCats=()=>[...new Set([...PRESET,...S.books.map(b=>b.category).filter(Boolean)])];
+const catList=()=>'<datalist id="cats">'+allCats().map(c=>'<option value="'+esc(c)+'">').join('')+'</datalist>';
+window.setCat=c=>{catF=c==='全部'?'':c;refreshShelf()};
+function bookRow(b){const n=revs(b.id).length;return '<a class="row" href="#/book/'+b.id+'"><div class="rt">'+esc(b.title)+'</div><div class="meta">'+esc(b.author||'佚名')+(b.country?' · 作者国家 '+esc(b.country):'')+' · '+esc(b.category||'未分类')+' · '+esc(b.format)+(n?' · '+n+' 条摘录与批注':'')+(startOf(b)?' · '+startOf(b)+' 开始':'')+(b.status==='done'&&finOf(b)?' · '+finOf(b)+' 读完':'')+'</div></a>'}
+function vHome(){const all=allNotes().filter(r=>r.thought&&r.thought.trim());
+let h='';
+if(!S.books.length)h+='<p class="empty">书架是空的。添加你正在读的第一本书，读完后填写阅读笔记，读到想留下的段落时再记摘录与批注。</p>';
+if(S.books.length)h+=shelfBar()+'<div id="shelf">'+shelfHtml()+'</div>';
+const old=all.filter(r=>(Date.now()-new Date(r.date))/864e5>=7);const pool=old.length?old:all;
+if(pool.length){const r=pool[Math.floor(Date.now()/864e5)%pool.length];const b=book(r.bookId);
+h='<div class="rv"><div class="rv-h">回看一条旧想法</div><blockquote>'+rich(r.thought.length>160?r.thought.slice(0,160)+'…':r.thought)+'</blockquote><div class="meta">'+r.date+' · '+esc(b?b.title:'')+(r.chapter?' · '+esc(r.chapter):'')+'</div><a class="lnk" href="'+noteHref(r)+'">打开这条记录，看看现在是否还这么想</a></div>'+h}
+h+='<details class="add" '+(S.books.length?'':'open')+'><summary>添加书籍</summary><label>书名</label><input id="bt"><div class="grid"><div><label>作者</label><input id="ba"></div><div><label>形式</label><select id="bf"><option>纸质书</option><option>电子书</option></select></div></div><div class="grid"><div><label>作者国家</label><input id="bn" list="countries" placeholder="选择或输入，例如：美国">'+countryList()+'</div><div><label>分类</label><input id="bc" list="cats" placeholder="选择或输入，例如：心理学">'+catList()+'</div></div><label>状态</label><select id="bs"><option value="reading">在读</option><option value="want">想读</option><option value="done">读完</option></select><div class="bar"><button class="pri" id="badd">添加书籍</button></div></details>';
+return h}
+let sq='',sCountry='',sStart='',sFin='';
+const norm=x=>String(x||'').toLowerCase();
+const noteDates=b=>getNt(b).map(e=>e.date).filter(Boolean).sort();
+const startOf=b=>b.started||b.added||noteDates(b)[0]||'';
+const finOf=b=>b.finished||(b.status==='done'?(noteDates(b).slice(-1)[0]||b.updated||''):'');
+function bookMatch(b){const q=norm(sq).trim();
+if(q){const hay=[b.title,b.author,b.country,b.category,b.category?'':'未分类',EN[b.country],EN[b.category]].map(norm).join(' ');if(!q.split(/\s+/).every(w=>hay.includes(w)))return false}
+if(sCountry&&(b.country||'')!==sCountry)return false;
+if(catF&&(b.category||'未分类')!==catF)return false;
+if(sStart&&!startOf(b).startsWith(sStart))return false;
+if(sFin&&!finOf(b).startsWith(sFin))return false;
+return true}
+function periodOpts(vals,sel,prefix){const ms=[...new Set(vals.filter(Boolean).map(v=>v.slice(0,7)))].sort().reverse(),ys=[...new Set(ms.map(m=>m.slice(0,4)))];return ys.map(y=>'<option value="'+y+'"'+(sel===y?' selected':'')+'>'+prefix+' '+y+'年</option>').join('')+ms.map(m=>'<option value="'+m+'"'+(sel===m?' selected':'')+'>'+prefix+' '+m.slice(0,4)+'年'+m.slice(5)+'月</option>').join('')}
+function shelfBar(){const cs=[...new Set(S.books.map(b=>b.country).filter(Boolean))].sort();
+return '<div class="sbar"><input id="sq" type="search" placeholder="搜索书名、作者、作者国家、分类" value="'+esc(sq)+'"><select id="sc" aria-label="作者国家"><option value="">全部作者国家</option>'+cs.map(c=>'<option value="'+esc(c)+'"'+(sCountry===c?' selected':'')+'>'+esc(c)+'</option>').join('')+'</select><select id="sst" aria-label="开始阅读时间"><option value="">开始阅读时间：全部</option>'+periodOpts(S.books.map(startOf),sStart,'开始于')+'</select><select id="sfn" aria-label="读完时间"><option value="">读完时间：全部</option>'+periodOpts(S.books.map(finOf),sFin,'读完于')+'</select></div>'}
+function bookCard(b,k){const n=revs(b.id).length;const meta=esc(b.author||'佚名')+(b.country?' · 作者国家 '+esc(b.country):'')+' · '+esc(b.category||'未分类')+' · '+esc(b.format)+(n?' · '+n+' 条摘录与批注':'')+(startOf(b)?' · '+startOf(b)+' 开始':'')+(b.status==='done'&&finOf(b)?' · '+finOf(b)+' 读完':'');
+const href='#/book/'+b.id;
+if(k==='reading'){const l=getNt(b).filter(e=>entText(e).trim()).sort((a,c)=>c.date.localeCompare(a.date)||tOf(c,0)-tOf(a,0))[0];return '<a class="bk bk-r" href="'+href+'"><div class="bk-t"><span class="rt">'+esc(b.title)+'</span><span class="go">继续 ›</span></div><div class="meta">'+meta+'</div>'+(l?'<div class="meta bk-n">最近 · '+l.date+' · '+TYPEZH[l.type]+'：'+esc(entText(l).replace(/\s+/g,' ').slice(0,60))+'</div>':'<div class="bk-n">还没有笔记，点开写下第一条</div>')+'</a>'}
+if(k==='done')return '<a class="bk bk-d" href="'+href+'"><span class="ck">✓</span><div><div class="rt">'+esc(b.title)+'</div><div class="meta">'+meta+'</div></div></a>';
+return '<a class="bk bk-w" href="'+href+'"><div class="rt">'+esc(b.title)+'</div><div class="meta">'+meta+'</div></a>'}
+function shelfHtml(){let h='';const cs=[...new Set(S.books.map(b=>b.category||'未分类'))];
+if(cs.length>1)h+='<div class="chips">'+['全部',...cs].map(c=>'<button class="chip'+((c==='全部'?!catF:catF===c)?' on':'')+'" data-c="'+esc(c)+'" onclick="setCat(this.dataset.c)">'+esc(c)+'</button>').join('')+'</div>';
+const hit=S.books.filter(bookMatch),filtering=sq.trim()||sCountry||catF||sStart||sFin;
+if(filtering)h+='<p class="meta">找到 '+hit.length+' 本书 · <button class="lnk" onclick="clearShelf()">清除筛选</button></p>';
+if(!hit.length)return h+'<p class="empty">没有找到匹配的书。</p>';
+['reading','done','want'].forEach(k=>{const g=hit.filter(b=>b.status===k);if(g.length)h+='<div class="sh sh-'+k+'"><i></i><span>'+STATUS[k]+'</span><b>'+g.length+'</b></div>'+g.map(b=>bookCard(b,k)).join('')});return h}
+function refreshShelf(){const e=$('#shelf');if(e)e.innerHTML=shelfHtml()}
+window.clearShelf=()=>{sq='';sCountry='';sStart='';sFin='';catF='';const a=$('#sq');if(a)a.value='';['sc','sst','sfn'].forEach(i=>{const e=document.getElementById(i);if(e)e.value=''});refreshShelf()};
+function bindHome(){const q=$('#sq');if(q){q.oninput=()=>{sq=q.value;refreshShelf()};$('#sc').onchange=e=>{sCountry=e.target.value;refreshShelf()};$('#sst').onchange=e=>{sStart=e.target.value;refreshShelf()};$('#sfn').onchange=e=>{sFin=e.target.value;refreshShelf()}}const b=$('#badd');if(!b)return;b.onclick=()=>{const t=$('#bt').value.trim();if(!t){$('#bt').focus();return}
+S.books.push({id:uid(),title:t,author:$('#ba').value.trim(),format:$('#bf').value,status:$('#bs').value,category:$('#bc').value.trim(),country:$('#bn').value.trim(),added:today(),started:$('#bs').value==='reading'?today():''});save();route()}}
+
+function vBook(id){const b=book(id);if(!b)return '<p class="empty">找不到这本书。<a class="cn" href="#/">回到书架</a></p>';const rs=revs(id);
+let h='<a class="back" href="#/">‹ 返回书架</a>'+tabs(id)+'<div class="sechead" style="margin-top:0;align-items:baseline"><h3 style="margin:0">'+esc(b.title)+'</h3><span class="meta" id="svst">修改后自动保存</span></div><div class="grid" style="margin-top:6px"><div><label>作者</label><input class="bf" data-id="'+id+'" data-f="author" value="'+esc(b.author||'')+'" placeholder="作者姓名"></div><div><label>分类</label>'+catSelect(b)+'</div></div><div class="grid"><div><label>状态</label><select id="st" onchange="setStatus(\''+id+'\',this.value)">'+Object.keys(STATUS).map(k=>'<option value="'+k+'"'+(b.status===k?' selected':'')+'>'+STATUS[k]+'</option>').join('')+'</select></div></div><div class="grid"><div><label>开始阅读日期</label><input type="date" class="bf" data-id="'+id+'" data-f="started" value="'+esc(startOf(b))+'"></div><div><label>读完日期</label><input type="date" class="bf" data-id="'+id+'" data-f="finished" value="'+esc(finOf(b))+'"></div></div><label>一句话概括（可选）</label><textarea class="bf" data-id="'+id+'" data-f="summary" rows="2" placeholder="这本书整体在谈什么？用一句话说清楚。">'+esc(b.summary||'')+'</textarea><details class="more"><summary>更多信息</summary><div class="grid"><div><label>作者国家</label>'+countrySelect(b)+'</div><div><label>形式</label><select onchange="setFmt(\''+id+'\',this.value)"><option'+(b.format==='纸质书'?' selected':'')+'>纸质书</option><option'+(b.format==='电子书'?' selected':'')+'>电子书</option></select></div></div></details>'+bookNotes(b);
+h+=(rs.length?'<h2>此前的摘录与批注</h2>'+rs.map(r=>'<a class="row" href="#/edit/'+id+'/'+r.id+'"><div class="rt">'+esc(r.chapter||'摘录')+'</div><div class="meta">'+r.date+' · '+(r.quotes||[]).length+' 条摘录</div><div class="snip">'+esc(r.thought||'')+'</div></a>').join(''):'');h+='<div class="bar" style="margin-top:48px"><button class="lnk" onclick="delBook(\''+id+'\')">删除这本书</button></div>';return h}
+const optHtml=(arr,cur)=>'<option value="">未设置</option>'+arr.map(c=>'<option value="'+esc(c)+'"'+(c===cur?' selected':'')+'>'+esc(c)+'</option>').join('')+'<option value="__new__">＋ 新建…</option>';
+function catSelect(b){const arr=allCats();if(b.category&&!arr.includes(b.category))arr.push(b.category);return '<select onchange="pickField(this,\''+b.id+'\',\'category\')">'+optHtml(arr,b.category||'')+'</select>'}
+function countrySelect(b){const arr=[...new Set([...COUNTRIES,...S.books.map(x=>x.country).filter(Boolean)])];if(b.country&&!arr.includes(b.country))arr.push(b.country);return '<select onchange="pickField(this,\''+b.id+'\',\'country\')">'+optHtml(arr,b.country||'')+'</select>'}
+window.pickField=(el,id,f)=>{const b=book(id);const v=el.value;if(v!=='__new__'){b[f]=v;save();return}
+const w=document.createElement('span');w.innerHTML='<input placeholder="输入名称" style="width:62%"> <button class="sec" style="padding:7px 12px">确定</button>';el.replaceWith(w);const inp=w.querySelector('input');inp.focus();
+const done=()=>{const n=inp.value.trim();if(n){b[f]=n;save()}w.outerHTML=f==='category'?catSelect(b):countrySelect(b)};w.querySelector('button').onclick=done;inp.onkeydown=e=>{if(e.key==='Enter')done()}};
+const TYPEZH={quote:'摘录',arg:'观点',think:'思考',act:'行动'};
+const PH={think:'它有道理吗？它和我有什么关系？可以用 [[概念]] 连到别的书。',arg:'作者的一个主张，以及他的理由',act:'读完后，我会做什么不同的事？'};
+function getNt(b){if(!b.nt){b.nt=[];let k=0;const dt=b.updated||today(),base=Date.parse(dt)||Date.now();
+const tl=(b.tl||((b.thought||b.note||'').trim()?[{id:uid(),date:dt,text:b.thought||b.note}]:[])).filter(e=>(e.text||'').trim());
+const pts=(b.pts||(b.points||'').split('\n').map(s=>s.trim()).filter(Boolean).map(t=>({text:t,stance:''}))).filter(p=>(p.text||'').trim());
+const al=(b.al||((b.action||'').trim()?[{id:uid(),date:dt,text:b.action,done:false}]:[])).filter(e=>(e.text||'').trim());
+tl.forEach(e=>b.nt.push({id:e.id||uid(),date:e.date||dt,t:base+(k++),type:'think',text:e.text,stance:'',done:false}));
+pts.forEach(p=>b.nt.push({id:uid(),date:dt,t:base+(k++),type:'arg',text:p.text+((p.note||'').trim()?'\n理由：'+p.note.trim():''),stance:p.stance||'',done:false}));
+al.forEach(e=>b.nt.push({id:e.id||uid(),date:e.date||dt,t:base+(k++),type:'act',text:e.text,stance:'',done:!!e.done}))}
+if(!b.qmig){b.qmig=1;const dt=b.updated||today(),base=(Date.parse(dt)||Date.now())+500;let k=0;
+const fl=(b.fl||(b.favs||'').split('\n').map(s=>s.trim()).filter(Boolean).map(t=>({text:t,page:'',note:''}))).filter(q=>(q.text||'').trim()||q.img||(q.note||'').trim());
+fl.forEach(q=>b.nt.push({id:uid(),date:dt,t:base+(k++),type:'quote',text:q.text||'',page:q.page||'',note:q.note||'',img:q.img,stance:'',done:false}))}
+return b.nt}
+const getTl=b=>getNt(b).filter(e=>e.type==='think');
+const getAl=b=>getNt(b).filter(e=>e.type==='act');
+function getPts(b){return getNt(b).filter(e=>e.type==='arg').map(e=>({text:e.text,stance:e.stance||'',note:''}))}
+function getFvs(b){return getNt(b).filter(e=>e.type==='quote').map(e=>({text:e.text||'',page:e.page||'',note:e.note||'',img:e.img}))}
+function sync2(b){b.thought=getTl(b).map(e=>e.text).filter(Boolean).join('\n\n');b.action=getAl(b).map(e=>e.text).filter(Boolean).join('\n')}
+function shrink(f){return new Promise((ok,no)=>{const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const s=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?ok(b):no(new Error('blob')),'image/jpeg',0.82)};im.onerror=()=>no(new Error('img'));im.src=u})}
+const parseQs=t=>t.split('\n').map(s=>s.replace(/^\s*(?:[0-9]+[.)、．]|[-•*])\s*/,'').trim()).filter(Boolean).slice(0,5);
+function qItems(x){if(!x.items)x.items=parseQs(x.q||'').map(q=>({q,a:''}));return x.items}
+const prevQA=b=>{const L=(b.qa||[]).slice(-3);if(!L.length)return '';return '\n\n你之前问过的问题和用户的回答（不要重复这些问题；如果用户已回答，可以顺着回答追问更深）：\n'+L.flatMap(x=>qItems(x).map(i=>'问：'+i.q+'\n答：'+((i.a||'').trim()||'（未回答）'))).join('\n')};
+let atag=true,tagBlocked=false;try{atag=localStorage.getItem('shufang.atag')!=='0'}catch(_){}
+const hashS=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return h};
+const tgT={};
+const tagRow=e=>{const tx=entText(e).trim(),sg=e.sug||[];return (e.tags||[]).map(n=>'<span class="tag">'+esc(n)+'<button data-e="'+e.id+'" data-rm="'+esc(n)+'" aria-label="移除概念">✕</button></span>').join('')+sg.map(n=>'<button class="tag sug" data-e="'+e.id+'" data-acc="'+esc(n)+'">＋ '+esc(n)+'</button>').join('')+(sg.length?'<button class="lnk" data-e="'+e.id+'" data-dis="1" style="font-size:12px">忽略</button>':(sample&&tx.length>=10?'<button class="lnk" data-e="'+e.id+'" data-sg="1" style="font-size:12px">✦ 建议概念</button>':''))+'<button class="lnk" data-e="'+e.id+'" data-addtag="1" style="font-size:12px">＋ 概念</button>'};
+function refreshTags(id,eid,msg){const b=book(id),e=b&&getNt(b).find(x=>x.id===eid),el=document.querySelector('[data-tagrow="'+eid+'"]');if(el&&e)el.innerHTML=msg?'<span class="meta">'+msg+'</span>':tagRow(e)}
+function scheduleTags(id,e){if(!atag||tagBlocked||!sample)return;clearTimeout(tgT[e.id]);tgT[e.id]=setTimeout(()=>suggestTags(id,e.id,false),3500)}
+async function suggestTags(id,eid,force){const b=book(id);if(!b||!sample)return;const e=getNt(b).find(x=>x.id===eid);if(!e)return;const tx=entText(e).trim();
+if(!force&&(tx.length<30||e.sugHash===hashS(tx)||Math.abs(tx.length-(e.sugLen||0))<12))return;
+const known=[...new Set([...Object.keys(cmap()),...S.books.flatMap(x=>getNt(x).flatMap(n=>n.tags||[]))])].slice(0,40);
+const prompt='你是读书笔记的整理助手。请为下面这条笔记提炼 1 到 3 个“概念标签”，用来把不同书里谈论同一件事的笔记串起来。要求：每个标签是 2 到 8 个字的名词短语，抽象到能跨书复用（例如“垄断”“复利思维”），不要“这本书第三章”这类具体说法；如果下面的已有概念里有合适的，必须直接复用原词；笔记里已经写了 [[ ]] 的概念不要重复。只回复一个 JSON 字符串数组，例如 ["垄断","从0到1"]，不要任何其他文字。\n\n已有概念：'+(known.join('、')||'（暂无）')+'\n书：《'+b.title+'》\n笔记类型：'+TYPEZH[e.type]+'\n笔记：'+tx+(LANG==='en'?'\n\nWrite the tags in English.':'');
+refreshTags(id,eid,'正在建议概念…');
+try{const arr=await sample.json(prompt,{modelTier:'quick',cache:false});const have=new Set([...(e.tags||[]),...concepts({thought:entText(e),action:''})]);e.sug=[...new Set((Array.isArray(arr)?arr:[]).map(s=>String(s).trim()).filter(s=>s&&s.length<=16))].filter(s=>!have.has(s)).slice(0,3);e.sugHash=hashS(tx);e.sugLen=tx.length;save()}catch(err){if(err&&['not_granted','sampling_disabled','capability_disabled','not_declared'].includes(err.code))tagBlocked=true;e.sugHash=hashS(tx);e.sugLen=tx.length}
+refreshTags(id,eid)}
+let nfilter='all';
+const entText=e=>e.type==='quote'?((e.text||'')+(e.note?'\n'+e.note:'')):(e.text||'');
+const coachReady=b=>getNt(b).some(e=>entText(e).trim().length>=10);
+function syncCoachHint(b){const ch=$('#chint'),cb=$('#bcoach'),ok=coachReady(b);if(ch)ch.hidden=ok;if(cb)cb.classList.toggle('soft',!ok)}
+const tOf=(x,i)=>x.t||((Date.parse(x.date)||0)+i);
+const noteCard=e=>{const q=e.type==='quote';const head='<div class="meta" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">'+(e.type==='act'?'<input type="checkbox" data-d="'+e.id+'"'+(e.done?' checked':'')+' style="width:auto">':'')+esc(e.date)+(q?'<span class="chip on" style="padding:2px 10px;font-size:12px">摘录</span>':['think','arg','act'].map(t=>'<button class="chip'+(e.type===t?' on':'')+'" data-e="'+e.id+'" data-ty="'+t+'" style="padding:2px 10px;font-size:12px">'+TYPEZH[t]+'</button>').join(''))+'</span><button class="lnk" data-x="'+e.id+'" aria-label="删除这条">删除</button></div>';
+let body;
+if(q)body=(e.img?'<img data-sp="'+e.img+'" alt="摘录照片" style="max-width:100%;max-height:420px;border-radius:4px;margin:6px 0;display:block"><div style="display:flex;gap:16px;margin-bottom:6px">'+(canOcr?'<button class="lnk" data-ocr="'+e.id+'">识别图中文字</button>':'')+'<button class="lnk" data-delimg="'+e.id+'">删除图片</button></div>':'')+'<div class="qrow"><textarea rows="2" data-e="'+e.id+'" data-k="text" style="border-left:3px solid var(--mark);padding-left:10px" placeholder="原文">'+esc(e.text||'')+'</textarea><input data-e="'+e.id+'" data-k="page" value="'+esc(e.page||'')+'" placeholder="页码"><span></span></div><textarea rows="2" data-e="'+e.id+'" data-k="note" placeholder="我的思考：这句话让我想到什么？为什么打动我？（可选）">'+esc(e.note||'')+'</textarea>';
+else body='<textarea rows="'+(e.type==='think'?4:3)+'" data-e="'+e.id+'" placeholder="'+PH[e.type]+'">'+esc(e.text)+'</textarea>'+(e.type==='arg'?'<div class="stc"><span class="meta">我的立场</span>'+STANCES.filter(Boolean).map(o=>'<button class="chip'+(e.stance===o?' on':'')+'" data-e="'+e.id+'" data-st="'+o+'">'+o+'</button>').join('')+(sample&&e.text.trim()?'<button class="lnk" data-ask="'+e.id+'" style="margin-left:auto">追问这条</button>':'')+'</div>':'');
+return '<div class="en">'+head+body+'<div class="tg" data-tagrow="'+e.id+'">'+tagRow(e)+'</div></div>'};
+const qaCard=x=>{const it=qItems(x);const n=it.filter(i=>(i.a||'').trim()).length;return '<div class="en qa"><div class="qh"><span><span class="qbadge">教练的提问</span><span class="meta" style="margin-left:10px">'+x.date+' · 已回答 '+n+'/'+it.length+'</span></span><span style="display:flex;gap:14px">'+((!x.focus||x.src)?'<button class="lnk" data-regen="'+x.id+'" style="white-space:nowrap">换一组问题</button>':'')+'<button class="lnk" data-qdel="'+x.id+'" style="white-space:nowrap">删除这组提问</button></span></div>'+(x.focus?'<div class="fl">针对这条观点</div><blockquote class="fq">'+esc(x.focus)+'</blockquote>':'')+it.map((i,k)=>'<div class="q">'+esc(i.q)+'</div><textarea rows="3" data-qa="'+x.id+'" data-k="'+k+'" style="border:1px solid var(--line);background:var(--bg);padding:8px 10px" placeholder="写下你对这个问题的回答（可选）">'+esc(i.a||'')+'</textarea>').join('')+((x.a||'').trim()?'<label>此前的整体回答</label><textarea rows="3" data-qa="'+x.id+'" data-k="legacy" style="border:1px solid var(--line);background:var(--bg);padding:8px 10px">'+esc(x.a)+'</textarea>':'')+'</div>'};
+function drawStream(id){const b=book(id),box=$('#stream');if(!b||!box)return;const N=getNt(b);syncCoachHint(b);
+const ns=N.filter(e=>nfilter!=='coach'&&(nfilter==='all'||e.type===nfilter)).map((e,i)=>({k:'n',e,d:e.date,t:tOf(e,i)})),qs=(nfilter==='all'||nfilter==='coach')?(b.qa||[]).map((x,i)=>({k:'q',x,d:x.date,t:tOf(x,i)})):[];
+const all=[...ns,...qs].sort((a,c)=>c.d.localeCompare(a.d)||c.t-a.t);
+const fb=$('#nf');if(fb)fb.innerHTML=['all','quote','arg','think','act','coach'].map(t=>{const n=t==='all'?N.length:t==='coach'?(b.qa||[]).length:N.filter(e=>e.type===t).length;return '<button class="chip'+(t==='coach'?' coach':'')+(nfilter===t?' on':'')+'" data-f="'+t+'">'+(t==='all'?'全部':t==='coach'?'教练提问':TYPEZH[t])+(n?'<span style="opacity:.7;margin-left:4px">'+n+'</span>':'')+'</button>'}).join('');
+box.innerHTML=all.length?all.map(o=>o.k==='n'?noteCard(o.e):qaCard(o.x)).join(''):(nfilter==='all'?'<button class="ea" data-add="1">＋ 写下第一条笔记</button>':(nfilter==='coach'?'<p class="meta">还没有教练提问</p>':'<button class="ea" data-addtype="'+nfilter+'">＋ 写一条'+TYPEZH[nfilter]+'</button>'))}
+function drawQA(id){drawStream(id)}
+function bindStream(id){const b=book(id),box=$('#stream');if(!b||!box)return;drawStream(id);
+box.oninput=ev=>{const t=ev.target,d=t.dataset;if(!(t.tagName==='TEXTAREA'||(t.tagName==='INPUT'&&d.k)))return;if(d.e){const x=getNt(b).find(y=>y.id===d.e);if(x){x[d.k||'text']=t.value;sync2(b);b.updated=today();save();scheduleTags(id,x);syncCoachHint(b)}}else if(d.qa){const x=(b.qa||[]).find(y=>y.id===d.qa);if(x){if(d.k==='legacy')x.a=t.value;else qItems(x)[+d.k].a=t.value;b.updated=today();save()}}};
+box.onchange=ev=>{const t=ev.target;if(t.dataset.d){const x=getNt(b).find(y=>y.id===t.dataset.d);if(x){x.done=t.checked;save()}}};
+box.onclick=async ev=>{const d=ev.target.dataset;
+if(d.regen){const x=(b.qa||[]).find(y=>y.id===d.regen);if(!x)return;if(x.focus){if(x.src)askFocus(id,x.src,ev.target,x.id)}else{coachReplace=x.id;$('#bcoach').click()}return}
+if(d.addtag){const el=document.querySelector('[data-tagrow="'+d.e+'"]');if(el){ev.target.remove();el.insertAdjacentHTML('beforeend','<input data-newtag="'+d.e+'" placeholder="输入概念，回车添加" style="width:160px;font-size:13px;padding:3px 8px">');const i=el.querySelector('input');if(i)i.focus()}return}
+if(d.acc){const x=getNt(b).find(y=>y.id===d.e);if(x){x.tags=[...new Set([...(x.tags||[]),d.acc])];x.sug=(x.sug||[]).filter(n=>n!==d.acc);save();refreshTags(id,x.id)}return}
+if(d.rm){const x=getNt(b).find(y=>y.id===d.e);if(x){x.tags=(x.tags||[]).filter(n=>n!==d.rm);save();refreshTags(id,x.id)}return}
+if(d.dis){const x=getNt(b).find(y=>y.id===d.e);if(x){x.sug=[];save();refreshTags(id,x.id)}return}
+if(d.sg){suggestTags(id,d.e,true);return}
+if(d.add){mk('think');return}
+if(d.addtype){mk(d.addtype);return}
+if(d.ocr){const q=getNt(b).find(y=>y.id===d.ocr),bt=ev.target;if(!q||!sample)return;bt.disabled=true;bt.textContent='识别中…';try{const blob=await (await fetch(await signedUrl(q.img))).blob();const r=await sample('请逐字转录这张书页照片里的文字，只输出转录结果，不要解释；如果看不清就写“（无法识别）”。',{images:[blob],cache:false,modelTier:'default'});q.text=(q.text?q.text+'\n':'')+r.text.trim();save();drawStream(id)}catch(err){bt.textContent='识别失败，可重试';bt.disabled=false}return}
+if(d.delimg){const L=getNt(b),i=L.findIndex(y=>y.id===d.delimg);if(i>=0){const q=L[i],aid=q.img;delete q.img;if(!(q.text||'').trim()&&!(q.note||'').trim()&&!(q.page||'').trim())L.splice(i,1);save();drawStream(id);if(assetsApi&&aid)assetsApi.delete(aid).catch(()=>{})}return}
+if(d.ty){const x=getNt(b).find(y=>y.id===d.e);if(x){x.type=d.ty;sync2(b);save();drawStream(id)}return}
+if(d.st){const x=getNt(b).find(y=>y.id===d.e);if(x){x.stance=x.stance===d.st?'':d.st;save();drawStream(id)}return}
+if(d.x){const L=getNt(b),i=L.findIndex(y=>y.id===d.x);if(i>=0){const aid=L[i].img;L.splice(i,1);sync2(b);save();drawStream(id);if(assetsApi&&aid)assetsApi.delete(aid).catch(()=>{})}return}
+if(d.qdel){b.qa=(b.qa||[]).filter(y=>y.id!==d.qdel);save();drawStream(id);return}
+if(d.ask){askFocus(id,d.ask,ev.target)}};
+const commitTag=t=>{if(t.dataset.done)return;t.dataset.done='1';const v=t.value.trim(),x=getNt(b).find(y=>y.id===t.dataset.newtag);if(x&&v){x.tags=[...new Set([...(x.tags||[]),v])];save()}refreshTags(id,t.dataset.newtag)};
+box.onkeydown=ev=>{const t=ev.target;if(t.dataset&&t.dataset.newtag){if(ev.key==='Enter'){ev.preventDefault();commitTag(t)}else if(ev.key==='Escape'){t.dataset.done='1';refreshTags(id,t.dataset.newtag)}}};
+box.addEventListener('focusout',ev=>{const t=ev.target;if(t.dataset&&t.dataset.newtag)commitTag(t)});
+const ag=$('#atg');if(ag){const lab=()=>{ag.textContent=atag?'自动建议概念：开':'自动建议概念：关'};lab();ag.onclick=()=>{atag=!atag;try{localStorage.setItem('shufang.atag',atag?'1':'0')}catch(_){}lab()}}
+const mk=type=>{const e={id:uid(),date:today(),t:Date.now(),type,text:'',stance:'',done:false};if(type==='quote'){e.page='';e.note=''}getNt(b).push(e);if(nfilter!=='all'&&nfilter!==type)nfilter='all';const m0=$('#tmenu');if(m0)m0.hidden=true;drawStream(id);const t=box.querySelector('textarea[data-e="'+e.id+'"]');if(t)t.focus()};
+const tp=$('#tmenu');$('#nadd').onclick=()=>{tp.hidden=!tp.hidden};
+tp.onclick=ev=>{const bt=ev.target.closest('button');if(!bt)return;if(bt.dataset.newphoto){tp.hidden=true;if(!assetsApi){$('#bcout').textContent='当前账号无法上传图片';return}$('#ffile').click();return}const type=bt.dataset.new;if(type)mk(type)};
+if(window._mh)document.removeEventListener('click',window._mh);window._mh=ev=>{const m=$('#tmenu');if(m&&!m.hidden&&!ev.target.closest('#tmenu')&&!ev.target.closest('#nadd'))m.hidden=true};document.addEventListener('click',window._mh);
+if(window._mk)document.removeEventListener('keydown',window._mk);window._mk=ev=>{if(ev.key==='Escape'){const m=$('#tmenu');if(m)m.hidden=true}};document.addEventListener('keydown',window._mk);
+$('#nf').onclick=ev=>{const bt=ev.target.closest('button');if(bt&&bt.dataset.f){nfilter=bt.dataset.f;drawStream(id)}};
+const ff=$('#ffile');if(ff)ff.onchange=async ev=>{const f=ev.target.files[0];ev.target.value='';if(!f)return;const msg=$('#bcout');msg.textContent='上传中…';try{const blob=await shrink(f);const r=await assetsApi.upload(blob);getNt(b).push({id:uid(),date:today(),t:Date.now(),type:'quote',text:'',page:'',note:'',img:r.id,stance:'',done:false});nfilter='all';save();drawStream(id);msg.textContent=''}catch(err){msg.textContent='上传失败，请重试'}}}
+let coachCtl=null,coachReplace=null;
+function saveQs(b,last,extra,rid){const items=parseQs(last).map(q=>({q,a:''}));const old=rid&&(b.qa||[]).find(x=>x.id===rid);if(old&&!qItems(old).some(i=>(i.a||'').trim())&&!(old.a||'').trim()){old.q=last.trim();old.items=items;old.t=Date.now();old.date=today()}else{(b.qa=b.qa||[]).push(Object.assign({id:uid(),date:today(),t:Date.now(),q:last.trim(),a:'',items},extra||{}))}}
+async function askFocus(id,eid,btn,rid){if(coachCtl){coachCtl.abort();return}const b=book(id),p=getNt(b).find(e=>e.id===eid),out=$('#bcout');if(!p||!p.text.trim()||!sample)return;
+const th=(b.thought||b.note||'');const prompt='你是一位严谨而克制的读书教练。只提问，不替用户写想法，不总结，不夸奖。\n下面是用户读《'+b.title+'》时记下的一条核心观点，请只围绕这一条提出 2 个能逼出更深思考的问题。'+(p.stance==='不同意'||p.stance==='存疑'?'用户对它的立场是“'+p.stance+'”，请先追问这个立场背后的依据，再检验这个依据是否站得住。':p.stance?'用户对它的立场是“'+p.stance+'”，请追问这个立场的边界条件：什么情况下它不成立？':'用户还没有表态，请追问：用户是否同意，依据是什么。')+''+(LANG==='en'?'Write each question on its own line, short, in English only (do not use Chinese), no numbering, and no other text.':'每个问题一行，简短，用中文，引用词语时使用中文引号“”，不要编号，不要任何多余文字。')+'\n\n观点：'+p.text+'\n\n全书简介：'+(b.summary||'（无）')+'\n用户的整体思考：'+(th||'（暂无）')+prevQA(b)+(LANG==='en'?'\n\nIMPORTANT: Write every question in English, even though the notes above may be in Chinese. Do not use any Chinese characters.':'');
+coachCtl=new AbortController();const old=btn.textContent;btn.textContent='停止';let last='';out.textContent='';
+try{const rr=await sample(prompt,{modelTier:'default',cache:false,signal:coachCtl.signal,onText:({text})=>{last=text}});if(!last&&rr&&rr.text)last=rr.text;if(last.trim()){saveQs(b,last,{focus:p.text.trim(),src:eid},rid);save();drawStream(id);const t=$('#stream');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});out.textContent=''}}catch(e){out.textContent=e&&e.code==='cancelled'?'已停止':coachErr(e)}
+coachCtl=null;btn.textContent=old}
+function coachErr(e){const c=e&&e.code;if(!c)return '页面内部出错：'+((e&&e.message)||e);const m={not_granted:'你没有授权教练读取这段笔记，需要时可再点一次。',rate_limited:'请求太频繁了，请等几十秒再试。',session_expired:'登录状态已过期，请刷新页面后再试。',sampling_disabled:'你所在的工作区暂时关闭了这个功能。',capability_disabled:'这个功能目前被关闭了。',not_declared:'这个页面还没有开通教练功能。',prompt_too_large:'笔记内容太长了，请先精简一些再提问。',empty_completion:'教练这次没有给出内容，请再点一次。',upstream_error:'Claude 服务暂时出错，请稍后再试。',queue_overflow:'同时的请求太多了，请稍后再试。',invalid_request:'请求格式有问题，请把括号里的代码告诉我。'};return (m[c]||'教练暂时没有回应，稍后再试。')+(c!=='not_granted'?' （'+c+'）':'')}
+function bindCoach(id){const c=$('#bcoach');if(!c)return;drawQA(id);c.disabled=!sample;c.onclick=async()=>{if(coachCtl){coachCtl.abort();return}const rid=coachReplace;coachReplace=null;const b=book(id),out=$('#bcout');const pts=getPts(b).filter(p=>p.text.trim()).map(p=>'- '+p.text+(p.stance?'（我的立场：'+p.stance+'）':'')+(p.note?'，理由：'+p.note:'')).join('\n');const favs=getFvs(b).filter(q=>q.text.trim()).map(q=>'- '+q.text+(q.note?'（批注：'+q.note+'）':'')).join('\n');const th=b.thought||b.note||'';
+if(!coachReady(b)){out.textContent='先写几条笔记，教练才有东西可以追问。';return}
+const past=S.books.filter(x=>x.id!==id&&(x.thought||x.note)).slice(0,6).map(x=>'《'+x.title+'》：'+(x.thought||x.note).slice(0,160)).join('\n');
+const prompt='你是一位严谨而克制的读书教练。只提问，不替用户写想法，不总结，不夸奖。\n根据下面这本书的阅读笔记，提出 3 个能逼出更深思考的问题：1 个质疑作者论证的前提或边界（优先针对用户标注“不同意”或“存疑”的观点，没有则挑最关键的观点），1 个追问这些观点在用户自己生活或工作中的具体例子，1 个（若用户读过的其他书里有相关内容）指出新旧想法的冲突或呼应，没有就改为追问可验证的行动。'+(LANG==='en'?'Write each question on its own line, short, in English only (do not use Chinese), no numbering, and no other text.':'每个问题一行，简短，用中文，引用词语时使用中文引号“”，不要编号，不要任何多余文字。')+'\n\n书：《'+b.title+'》'+(b.author||'')+'\n简介：'+(b.summary||'')+'\n核心观点：\n'+pts+'\n最喜欢的话：\n'+favs+'\n我的思考：\n'+th+'\n行动：'+(b.action||'')+'\n\n用户读过的其他书的思考：\n'+(past||'（暂无）')+prevQA(b)+(LANG==='en'?'\n\nIMPORTANT: Write every question in English, even though the notes above may be in Chinese. Do not use any Chinese characters.':'');
+coachCtl=new AbortController();c.textContent='停止';out.textContent='教练在读你的笔记…';
+let last='';try{const rr=await sample(prompt,{modelTier:'default',cache:false,signal:coachCtl.signal,onText:({text})=>{last=text;out.textContent=text}});if(!last&&rr&&rr.text)last=rr.text;if(last.trim()){saveQs(b,last,null,rid);save();out.textContent='';drawQA(id)}}catch(e){out.textContent=e&&e.code==='cancelled'?'已停止':coachErr(e)}coachCtl=null;c.textContent='让教练提问'}}
+const STANCES=['','同意','部分同意','不同意','存疑'];
+function bookNotes(b){const paper=b.format==='纸质书';const items=[['quote','摘录','作者的原话'],['arg','观点','用自己的话转述作者的主张'],['think','思考','我怎么看，有什么联想'],['act','行动','我要做什么']];
+return '<div class="lh"><div><div class="t">我的笔记</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center"><div style="position:relative"><button class="pri" id="nadd" aria-haspopup="true">＋ 写一条</button><div class="menu" id="tmenu" hidden>'+items.map(i=>'<button data-new="'+i[0]+'">'+i[1]+'<small>'+i[2]+'</small></button>').join('')+(paper?'<button data-newphoto="1">📷 拍照摘录<small>拍下书页上的原话</small></button>':'')+'</div></div><button class="sec'+(coachReady(b)?'':' soft')+'" id="bcoach">'+(sample?'让教练提问':'教练暂不可用')+'</button><button class="lnk" id="atg" style="font-size:13px"></button></div></div><div class="meta" id="chint"'+(coachReady(b)?' hidden':'')+' style="margin:-6px 0 12px;text-align:right">教练会根据你写的笔记来提问，先写下几条笔记吧。</div>'+(paper?'<input type="file" id="ffile" accept="image/*" hidden>':'')+'<div class="chips" id="nf"></div><div class="coach" id="bcout"></div><div id="stream"></div>'}
+
+window.setStatus=(id,v)=>{const b=book(id);b.status=v;if(v==='reading'&&!b.started)b.started=today();if(v==='done'){if(!b.started)b.started=startOf(b)||today();if(!b.finished)b.finished=today()}save();const s1=document.querySelector('input[data-f="started"]'),f1=document.querySelector('input[data-f="finished"]');if(s1)s1.value=startOf(b);if(f1)f1.value=finOf(b)};
+window.setCatOf=(id,v)=>{book(id).category=v.trim();save()};
+window.setNote=(id,v)=>{book(id).note=v;save()};
+window.setFmt=(id,v)=>{book(id).format=v;save();route()};
+window.delBook=id=>{if(!confirm('删除这本书和它的全部复盘？'))return;S.books=S.books.filter(b=>b.id!==id);S.reviews=S.reviews.filter(r=>r.bookId!==id);(S.gone=S.gone||[]).push({id,ts:Date.now()});save();location.hash='#/'};
+
+let draft=null;
+function vEdit(bid,rid){const b=book(bid);if(!b)return '<p class="empty">找不到这本书。</p>';
+const ex=S.reviews.find(r=>r.id===rid);draft=ex?JSON.parse(JSON.stringify(ex)):{id:uid(),bookId:bid,date:today(),chapter:'',quotes:[],thought:'',action:''};
+return '<div class="meta"><a class="cn" href="#/book/'+bid+'">'+esc(b.title)+'</a></div><label>出自哪里（可选）</label><input id="ch" value="'+esc(draft.chapter)+'" placeholder="例如：第三章，或读到第120页"><label>摘录</label><div id="qs"></div><button class="sec" id="qadd">添加摘录</button><label>我的批注（用 [[概念]] 把想法连到其他书）</label><textarea id="th" rows="9" placeholder="这段话让我想到什么？我同意，还是质疑？">'+esc(draft.thought)+'</textarea><label>行动</label><textarea id="ac" rows="3" placeholder="接下来我会做什么不同的事？"></textarea><div class="bar"><button class="pri" id="sv">保存</button><button class="sec" id="coach">'+(sample?'让教练提问':'教练暂不可用')+'</button>'+(ex?'<button class="lnk" id="dl">删除</button>':'')+'</div><div class="coach" id="cout"></div>'}
+function drawQs(){$('#qs').innerHTML=draft.quotes.map((q,i)=>'<div class="qrow"><textarea rows="2" data-i="'+i+'" data-f="text" placeholder="原文">'+esc(q.text)+'</textarea><input data-i="'+i+'" data-f="page" value="'+esc(q.page||'')+'" placeholder="页码"><button class="lnk" data-x="'+i+'" aria-label="删除摘录">✕</button></div>').join('')||'<p class="meta">还没有摘录。</p>';
+$('#qs').oninput=e=>{const t=e.target;if(t.dataset.i!=null)draft.quotes[t.dataset.i][t.dataset.f]=t.value};
+$('#qs').onclick=e=>{const x=e.target.dataset.x;if(x!=null){draft.quotes.splice(x,1);drawQs()}}}
+function collect(){draft.chapter=$('#ch').value.trim();draft.thought=$('#th').value;draft.action=$('#ac').value;draft.quotes=draft.quotes.filter(q=>q.text.trim())}
+function bindEdit(bid){if(!$('#qs'))return;$('#ac').value=draft.action||'';drawQs();
+$('#qadd').onclick=()=>{draft.quotes.push({text:'',page:''});drawQs();const t=$('#qs').querySelectorAll('textarea');t[t.length-1].focus()};
+$('#sv').onclick=()=>{collect();if(!draft.thought.trim()&&!draft.quotes.length){$('#th').focus();return}
+const i=S.reviews.findIndex(r=>r.id===draft.id);if(i>=0)S.reviews[i]=draft;else S.reviews.push(draft);save();location.hash='#/book/'+bid};
+const d=$('#dl');if(d)d.onclick=()=>{if(confirm('删除这篇复盘？')){S.reviews=S.reviews.filter(r=>r.id!==draft.id);save();location.hash='#/book/'+bid}};
+const c=$('#coach');c.disabled=!sample;
+c.onclick=async()=>{collect();if(!draft.thought.trim()&&!draft.quotes.length){$('#cout').textContent='先写下摘录或一点想法，教练才有东西可以追问。';return}
+const b=book(bid);const past=S.reviews.filter(r=>r.id!==draft.id&&r.thought).sort((x,y)=>y.date.localeCompare(x.date)).slice(0,6).map(r=>'《'+(book(r.bookId)||{}).title+'》'+(r.chapter||'')+'：'+r.thought.slice(0,160)).join('\n');
+const prompt='你是一位严谨而克制的读书复盘教练。只提问，不替用户写想法，不总结，不夸奖。\n根据下面的复盘草稿，提出 3 个能逼出更深思考的问题：1 个质疑作者论证的前提或边界，1 个追问这个观点在用户自己生活或工作中的具体例子，1 个（若用户过往笔记里有相关内容）指出与旧想法的冲突或呼应，没有就改为追问可验证的行动。每个问题一行，简短，用中文，不要编号以外的任何多余文字。\n\n书：《'+b.title+'》'+(b.author||'')+'\n章节：'+draft.chapter+'\n摘录：\n'+draft.quotes.map(q=>'- '+q.text).join('\n')+'\n我的思考：\n'+draft.thought+'\n行动：'+draft.action+'\n\n用户过往笔记：\n'+(past||'（暂无）');
+c.disabled=true;$('#cout').textContent='教练在读你的笔记…';
+try{await sample(prompt,{modelTier:'default',cache:false,onText:({text})=>{$('#cout').textContent=text}})}catch(e){$('#cout').textContent=e&&e.code==='not_granted'?'你没有授权教练读取这段笔记，需要时可再点一次。':'教练暂时没有回应，稍后再试。'}c.disabled=false}}
+
+function revRow(r,showB){const b=book(r.bookId);return '<a class="row" href="'+noteHref(r)+'"><div class="meta">'+r.date+(showB&&b?' · '+esc(b.title):'')+(r.chapter?' · '+esc(r.chapter):'')+'</div><div class="snip">'+esc(r.thought||(r.quotes[0]||{}).text||'')+'</div></a>'}
+function vTime(){const rs=allNotes().sort((a,b)=>b.date.localeCompare(a.date));if(!rs.length)return '<p class="empty">这里会按时间汇集你所有的笔记。写下第一条笔记后，这里就有内容了。</p>';
+const m=cmap(),ks=Object.keys(m).sort((a,b)=>m[b].length-m[a].length).slice(0,24);
+let h=ks.length?'<div class="lh" style="margin-top:0"><div><div class="t">概念</div></div></div><div class="chips">'+ks.map(k=>'<a class="chip" href="#/concept/'+encodeURIComponent(k)+'">'+esc(k)+' · '+m[k].length+'</a>').join('')+'</div>':'';
+let mo='';h+='<div class="lh"><div><div class="t">时间线</div></div></div>';rs.forEach(r=>{const k=r.date.slice(0,7);if(k!==mo){mo=k;h+='<h2>'+k.replace('-','年')+'月</h2>'}h+=revRow(r,true)});return h}
+const allNotes=()=>[...S.reviews,...S.books.flatMap(b=>getNt(b).filter(e=>entText(e).trim()).map(e=>({id:'n_'+e.id,bookId:b.id,date:e.date,chapter:TYPEZH[e.type],thought:entText(e),action:'',quotes:[],isBook:1,tags:e.tags||[]})).concat((b.qa||[]).flatMap(x=>qItems(x).map((i,k)=>({i,k})).filter(o=>(o.i.a||'').trim()).map(o=>({id:'q_'+x.id+'_'+o.k,bookId:b.id,date:x.date,chapter:'教练问答',thought:'问：'+o.i.q+'\n答：'+o.i.a,action:'',quotes:[],isBook:1})))))];
+const noteHref=r=>r.isBook?'#/book/'+r.bookId:'#/edit/'+r.bookId+'/'+r.id;
+function cmap(){const m={};allNotes().forEach(r=>concepts(r).forEach(n=>(m[n]=m[n]||[]).push(r)));return m}
+function vConcepts(){const m=cmap(),ks=Object.keys(m).sort((a,b)=>m[b].length-m[a].length);if(!ks.length)return '<p class="empty">概念是跨书的线索。在思考里写 [[概念名]]，同一概念下的所有想法会汇集到这里。</p>';
+return '<h2>全部概念</h2>'+ks.map(k=>'<a class="row" href="#/concept/'+encodeURIComponent(k)+'"><div class="rt">'+esc(k)+'</div><div class="meta">出现在 '+new Set(m[k].map(r=>r.bookId)).size+' 本书、'+m[k].length+' 篇复盘</div></a>').join('')}
+function vConcept(n){const rs=(cmap()[n]||[]).sort((a,b)=>a.date.localeCompare(b.date));
+return '<a class="back" href="#/time">‹ 回顾</a><h3>'+esc(n)+'</h3><div class="meta">按时间看这个想法如何变化</div>'+(rs.length?rs.map(r=>{const b=book(r.bookId);return '<div class="row" style="cursor:default"><div class="meta">'+r.date+' · <a class="cn" href="'+noteHref(r)+'">'+esc(b?b.title:'')+(r.chapter?' · '+esc(r.chapter):'')+'</a></div><p style="margin:6px 0 0">'+rich(r.thought)+'</p></div>'}).join(''):'<p class="empty">还没有复盘提到这个概念。</p>')}
+const loaded={};function loadJs(u){return loaded[u]||(loaded[u]=new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=()=>{delete loaded[u];no(new Error('load'))};document.head.appendChild(s)}))}
+function blocks(scope){const bs=scope==='all'?S.books:S.books.filter(b=>b.id===scope);const o=[{t:'h1',x:scope==='all'?'我的书房':(bs[0]?bs[0].title:'书房')}];
+bs.forEach(b=>{if(scope==='all')o.push({t:'h2',x:b.title});o.push({t:'meta',x:[b.author,b.country?'作者国家：'+b.country:'',b.category,b.format,STATUS[b.status],startOf(b)?'开始阅读：'+startOf(b):'',b.status==='done'&&finOf(b)?'读完：'+finOf(b):''].filter(Boolean).join(' · ')});
+const sec=(l,arr)=>{if(arr.length){o.push({t:'h3',x:(LANG==='en'&&EN[l]?EN[l]:l)});arr.forEach(a=>o.push(a))}};
+if(b.summary)sec('内容简介',[{t:'p',x:b.summary}]);
+sec('核心观点',getPts(b).filter(p=>p.text.trim()).map(p=>({t:'li',x:p.text+(p.stance?'（立场：'+p.stance+'）':'')+(p.note?' —— '+p.note:'')})));
+sec('摘录',getFvs(b).filter(q=>q.text.trim()||q.img).map(q=>({t:'q',x:(q.text||'（图片摘录）')+(q.page?'（p.'+q.page+'）':'')+(q.note?'\n'+q.note:'')})));
+sec('我的思考与延伸',getTl(b).filter(e=>e.text.trim()).map(e=>({t:'p',x:e.date+'　'+e.text})));
+sec('我会怎么做',getAl(b).filter(e=>e.text.trim()).map(e=>({t:'li',x:(e.done?'[已完成] ':'')+e.date+'　'+e.text})));
+sec('教练提问与我的回答',(b.qa||[]).flatMap(x=>qItems(x).flatMap(i=>[{t:'q',x:i.q},{t:'p',x:'回答：'+(i.a||'（未回答）')}]).concat((x.a||'').trim()?[{t:'p',x:'此前的整体回答：'+x.a}]:[])));
+sec('此前的摘录与批注',revs(b.id).reverse().flatMap(r=>[{t:'meta',x:(r.chapter||'摘录')+' · '+r.date}].concat((r.quotes||[]).filter(q=>q.text.trim()).map(q=>({t:'q',x:q.text+(q.page?'（p.'+q.page+'）':'')})),r.thought?[{t:'p',x:r.thought}]:[],r.action?[{t:'p',x:'行动：'+r.action}]:[])));
+});return o}
+const TAG={h1:['<h1>','</h1>'],h2:['<h2>','</h2>'],h3:['<h3>','</h3>'],meta:['<p class="m">','</p>'],p:['<p>','</p>'],li:['<p>• ','</p>'],q:['<blockquote>','</blockquote>']};
+const blocksHtml=o=>o.map(b=>TAG[b.t][0]+esc(b.x).replace(/\n/g,'<br>')+TAG[b.t][1]).join('');
+const blocksMd=o=>o.map(b=>({h1:'# ',h2:'## ',h3:'### ',meta:'',p:'',li:'- ',q:'> '}[b.t])+b.x.replace(/\n/g,b.t==='q'?'\n> ':'\n')).join('\n\n');
+const wordHtml=o=>'<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"></head><body style="font-family:宋体">'+blocksHtml(o)+'</body></html>';
+async function toDocx(o){await loadJs('https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js');const d=window.docx,F='宋体';
+const ps=o.map(b=>{const lines=b.x.split('\n');const mk=(opt,ro)=>new d.Paragraph({...opt,children:lines.map((l,i)=>new d.TextRun({text:l,font:F,break:i?1:0,...ro}))});
+switch(b.t){case 'h1':return mk({heading:d.HeadingLevel.TITLE},{bold:true,size:44});case 'h2':return mk({heading:d.HeadingLevel.HEADING_1,spacing:{before:400}},{bold:true,size:32});case 'h3':return mk({heading:d.HeadingLevel.HEADING_2,spacing:{before:240}},{bold:true,size:26,color:'2F5D58'});case 'meta':return mk({},{size:20,color:'6B7776'});case 'li':return mk({bullet:{level:0}},{size:24});case 'q':return mk({indent:{left:360},border:{left:{style:d.BorderStyle.SINGLE,size:12,color:'C9BE92',space:8}}},{size:24});default:return mk({spacing:{after:80}},{size:24})}});
+return d.Packer.toBlob(new d.Document({sections:[{children:ps}]}))}
+async function toCanvas(o){await loadJs('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');const r=document.createElement('div');r.id='xroot';r.innerHTML=blocksHtml(o);document.body.appendChild(r);
+try{if(document.fonts&&document.fonts.ready)await document.fonts.ready;await new Promise(k=>setTimeout(k,500));const h=r.scrollHeight;const sc=Math.max(.5,Math.min(2,Math.sqrt(16e6/(760*h))));return await html2canvas(r,{scale:sc,backgroundColor:'#ffffff'})}finally{r.remove()}}
+async function toPdf(o){const c=await toCanvas(o);await loadJs('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');const pdf=new window.jspdf.jsPDF({unit:'pt',format:'a4'});const W=pdf.internal.pageSize.getWidth(),H=pdf.internal.pageSize.getHeight();const ph=Math.floor(c.width*H/W);let y=0,first=true;
+while(y<c.height){const sl=document.createElement('canvas');sl.width=c.width;sl.height=Math.min(ph,c.height-y);const g=sl.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,sl.width,sl.height);g.drawImage(c,0,y,c.width,sl.height,0,0,c.width,sl.height);if(!first)pdf.addPage();pdf.addImage(sl.toDataURL('image/jpeg',0.92),'JPEG',0,0,W,sl.height*W/c.width);first=false;y+=ph}return pdf.output('blob')}
+function openExport(){if($('#xdlg'))return;const d=document.createElement('div');d.className='xo';d.id='xdlg';
+d.innerHTML='<div class="xp" role="dialog" aria-label="导出"><h3 style="font-size:20px">导出</h3><label>范围</label><select id="xs"><option value="all">全部书籍</option>'+S.books.map(b=>'<option value="'+b.id+'">'+esc(b.title)+'</option>').join('')+'</select><label>格式</label><div class="xf"><button class="pri" data-f="docx">Word</button><button class="pri" data-f="pdf">PDF</button><button class="pri" data-f="png">图片</button><button class="sec" data-f="md">Markdown</button><button class="sec" data-f="json">备份文件</button></div><label>导入备份文件（.json）</label><input type="file" id="xi" accept=".json,application/json"><p class="meta" id="xm" style="min-height:22px"></p><div class="bar" style="margin-top:0"><button class="lnk" id="xc">关闭</button></div></div>';
+document.body.appendChild(d);const close=()=>{d.remove();document.removeEventListener('keydown',esc2)};const esc2=e=>{if(e.key==='Escape')close()};document.addEventListener('keydown',esc2);
+$('#xc').onclick=close;d.onclick=e=>{if(e.target===d)close()};
+$('#xi').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());let n=0;(j.books||[]).forEach(b=>{if(!book(b.id)){S.books.push(b);n++}});(j.reviews||[]).forEach(r=>{if(!S.reviews.find(x=>x.id===r.id)&&book(r.bookId))S.reviews.push(r)});save();$('#xm').textContent='已导入 '+n+' 本书';route()}catch(err){$('#xm').textContent='文件格式不对，导入失败'}};
+const cur=location.hash.match(/#\/(?:book|edit)\/([^/]+)/);if(cur&&book(cur[1]))$('#xs').value=cur[1];
+d.querySelectorAll('[data-f]').forEach(btn=>btn.onclick=async()=>{const f=btn.dataset.f,sc=$('#xs').value,msg=$('#xm');if(!S.books.length){msg.textContent='书架还是空的，先添加一本书。';return}
+const o=blocks(sc);let fn=(sc==='all'?'我的书房':book(sc).title).replace(/[\\/:*?"<>|]/g,'');
+d.querySelectorAll('button').forEach(x=>x.disabled=true);msg.textContent='正在生成…';
+try{let blob;if(f==='json'){blob=new Blob([JSON.stringify({books:S.books,reviews:S.reviews,gone:S.gone||[]})],{type:'application/json'});fn+='.json'}else if(f==='md'){blob=new Blob([blocksMd(o)],{type:'text/markdown'});fn+='.md'}else if(f==='docx'){blob=await toDocx(o);fn+='.docx'}else if(f==='pdf'){blob=await toPdf(o);fn+='.pdf'}else{const c=await toCanvas(o);blob=await new Promise(k=>c.toBlob(k,'image/png'));fn+='.png'}
+await downloads.save({filename:fn,data:blob});msg.textContent='已导出：'+fn}catch(e){const c=e&&e.code;msg.textContent=c==='declined'?'已取消保存':(c==='unavailable'||c==='extension_not_enabled')?'当前环境不支持保存这种格式':(e&&!c&&e.message==='load')?'导出组件没有加载成功，请检查网络后重试':'导出失败，请稍后再试。'+(c?'（'+c+'）':'')}
+d.querySelectorAll('button').forEach(x=>x.disabled=false)})}
+const SB_URL='https://gxlssxjgazujdzxxmexs.supabase.co',SB_KEY='sb_publishable_V7Lt7C4FjMYnezRCRNedRQ_Cdxp_a1R';
+const sb=window.supabase.createClient(SB_URL,SB_KEY);
+let _sy='';function setSync(m){_sy=m;const e=$('#sync');if(e)e.textContent=m}
+let me=null,booted=false,pushT=null,pulling=false;const last={},dirty=new Set();
+const strip=b=>{const {ts,...r}=b;return r};
+const packet=id=>JSON.stringify([strip(book(id)),S.reviews.filter(r=>r.bookId===id)]);
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+function touch(){if(!me)return;S.books.forEach(b=>{const p=packet(b.id);if(last[b.id]!==p){last[b.id]=p;b.ts=Date.now();dirty.add(b.id)}});(S.gone||[]).forEach(g=>{if(!g.sent)dirty.add(g.id)});if(dirty.size){setSync('同步中…');clearTimeout(pushT);pushT=setTimeout(push,1200)}}
+async function push(){const ids=[...dirty];dirty.clear();try{const rows=[];for(const id of ids){const g=(S.gone||[]).find(x=>x.id===id);if(g){rows.push({user_id:me,id,ts:g.ts,deleted:true,json:null});continue}const b=book(id);if(!b)continue;rows.push({user_id:me,id,ts:b.ts||Date.now(),deleted:false,json:packet(id)})}
+if(rows.length){const {error}=await sb.from('books').upsert(rows,{onConflict:'user_id,id'});if(error)throw error}(S.gone||[]).forEach(g=>{if(ids.includes(g.id))g.sent=1});persist();setSync('已同步 ✓')}catch(e){ids.forEach(i=>dirty.add(i));setSync('同步失败，稍后自动重试');clearTimeout(pushT);pushT=setTimeout(push,15000)}}
+async function pull(){if(!me||pulling)return;pulling=true;try{const {data,error}=await sb.from('books').select('id,ts,deleted,json');if(error)throw error;let changed=false;
+data.forEach(d=>{const lb=book(d.id),dts=Number(d.ts);
+if(d.deleted){if(lb&&(lb.ts||0)<=dts){S.books=S.books.filter(b=>b.id!==d.id);S.reviews=S.reviews.filter(r=>r.bookId!==d.id);changed=true}return}
+if(!lb||dts>(lb.ts||0)){try{const [nb,nr]=JSON.parse(d.json);nb.ts=dts;S.books=S.books.filter(b=>b.id!==d.id);S.books.push(nb);S.reviews=S.reviews.filter(r=>r.bookId!==d.id).concat(nr);last[d.id]=packet(d.id);changed=true}catch(e){}}
+else if(dts===lb.ts)last[d.id]=packet(d.id)});
+persist();touch();if(changed)route();if(!dirty.size)setSync('已同步 ✓')}catch(e){setSync('同步失败，请检查网络')}pulling=false}
+async function onSession(sess){const u=sess&&sess.user?sess.user.id:null;if(u===me)return;me=u;
+if(!u){S={books:[],reviews:[]};mem=null;setSync('');$('#lo').hidden=true;route();return}
+demo=false;try{sessionStorage.removeItem('shufang.demo')}catch(e){}KEY='shufang.v1.'+u;S=load();$('#lo').hidden=false;setSync('正在同步…');route();pull()}
+let demo=false;try{demo=sessionStorage.getItem('shufang.demo')==='1'}catch(e){}
+const DEMO_DATA=()=>{const N=(id,date,t,type,text,o)=>Object.assign({id,date,t,type,text,stance:'',done:false},o||{});
+const zto1='dz1',zto2='dz2';
+return {books:[
+{id:'demo_lunyu',title:'论语',author:'孔子及弟子',country:'中国',category:'哲学',format:'纸质书',status:'done',added:'2026-08-02',started:'2026-08-02',finished:'2026-09-15',summary:'记录孔子及其弟子言行的语录集，核心是“学”与“君子”的修养。',qmig:1,nt:[
+N('dl1','2026-08-05',1,'quote','学而时习之，不亦说乎？',{page:'1',note:'“习”不只是复习，更像在生活里反复实践。读书如果不落到行动，就只是“学”的前半句。',tags:['学与行']}),
+N('dl2','2026-08-20',2,'quote','三人行，必有我师焉。',{page:'67',note:'把“老师”看成一个个具体的人，而不是一种身份。',tags:[]}),
+N('dl3','2026-09-01',3,'arg','学和思要互相配合：只学不思会迷茫，只思不学会危险。',{stance:'同意',tags:['学与思']}),
+N('dl4','2026-09-14',4,'think','这条和《思考，快与慢》里直觉与推理的分工有呼应：学是输入，思是慢速加工。',{tags:['学与思','慢思考']}),
+N('dl5','2026-09-15',5,'act','每读完一章，写一条“我会怎么用”，一周后回看。',{done:true})]},
+{id:'demo_tfas',title:'思考，快与慢',author:'丹尼尔·卡尼曼',country:'以色列',category:'心理学',format:'电子书',status:'reading',added:'2026-10-05',started:'2026-10-05',summary:'人有快速直觉和慢速推理两套思考方式，理解它们的分工能减少判断失误。',qmig:1,nt:[
+N('dt1','2026-10-08',1,'arg','直觉判断很快，但常被偏见带偏，重要决定需要刻意放慢。',{stance:'部分同意',tags:['慢思考','认知偏差']}),
+N('dt2','2026-10-12',2,'think','做优先级决定时我常凭感觉。可以试试在重要决定前先写下“为什么”，强迫自己进入慢速思考。',{tags:['慢思考']}),
+N('dt3','2026-10-12',3,'act','本周做重要决定前，先写三行理由再决定。')]},
+{id:'demo_zto',title:'Zero to One',author:'Peter Thiel',country:'美国',category:'商业与管理',format:'纸质书',status:'reading',added:'2026-10-18',started:'2026-10-18',summary:'创业应该追求创造新东西（从0到1），而不是复制已有的成功经验（从1到n）。',qmig:1,nt:[
+N(zto1,'2026-10-19',1,'arg','真正的创新是做出别人没做过的事，而不是把已有的东西复制得更多。',{stance:'同意',tags:['从0到1']}),
+N(zto2,'2026-10-20',2,'arg','垄断是创业成功的目标，而不是缺陷。',{stance:'存疑',tags:['垄断']}),
+N('dz3','2026-10-22',3,'think','作者强调从0到1，但很多成功产品其实是在从1到n里把体验做好，两者的边界到底在哪里？',{tags:['从0到1']})],
+qa:[{id:'demo_q1',date:'2026-10-21',t:9,focus:'垄断是创业成功的目标，而不是缺陷。',src:zto2,q:'',a:'',items:[
+{q:'你对这条标了“存疑”：你存疑的是“垄断能带来利润”，还是“应该主动追求垄断”？',a:'我更怀疑后者。利润可能来自垄断，但把垄断当目标，可能让团队忽视用户真正的需求。'},
+{q:'有没有一个你熟悉的行业，不垄断也能长期赚钱？它说明了什么？',a:''}]}]}
+],reviews:[]}};
+function startDemo(){demo=true;try{sessionStorage.setItem('shufang.demo','1')}catch(e){}me=null;KEY='shufang.demo';mem=null;S=load();if(!S.books.length){S=DEMO_DATA();persist()}sample=null;assetsApi=null;canOcr=false;route()}
+function exitDemo(){try{sessionStorage.removeItem('shufang.demo')}catch(e){}location.reload()}
+function resetDemo(){S=DEMO_DATA();persist();route()}
+
+function vLogin(){if(!booted)return '<p class="empty">加载中…</p>';return '<div style="max-width:380px;margin:60px auto"><h3>登录书房</h3><p class="meta">输入邮箱，我们会发一封带登录链接的邮件。点开链接即可登录，不需要密码。首次使用的邮箱会自动注册。</p><label>邮箱</label><input id="em" type="email" autocomplete="email" placeholder="you@example.com"><div class="bar"><button class="pri" id="lg">发送登录链接</button></div><p class="meta" id="lm" style="min-height:22px"></p><div style="margin-top:22px;border-top:1px solid var(--line);padding-top:16px"><button class="sec" id="demoin">免注册体验示例</button><p class="meta" style="margin-top:8px">用几本示例书看看产品是什么样子，数据只保存在这台设备上。</p></div></div>'}
+function bindLogin(){const di=$('#demoin');if(di)di.onclick=startDemo;const b=$('#lg');if(!b)return;const go=async()=>{const em=$('#em').value.trim();if(!em)return;b.disabled=true;$('#lm').textContent='发送中…';const {error}=await sb.auth.signInWithOtp({email:em,options:{emailRedirectTo:location.origin+location.pathname}});const em0=error&&String(error.message||'');$('#lm').textContent=error?(/signups not allowed/i.test(em0)?'这个站点暂不开放新用户注册。':/rate limit/i.test(em0)?'邮件发送太频繁，请过几分钟再试。':/invalid/i.test(em0)?'邮箱格式不对，请检查后重试。':'发送失败：'+em0):'已发送。请到邮箱点击登录链接（没收到的话，看看垃圾邮件）。';b.disabled=false};b.onclick=go;$('#em').onkeydown=e=>{if(e.key==='Enter')go()}}
+function tabs(cur){const L=S.books.filter(b=>b.status==='reading'||b.id===cur);if(L.length<2)return '';return '<div class="tabs" role="tablist" aria-label="切换书籍">'+L.map(b=>'<a class="chip'+(b.id===cur?' on':'')+'" href="#/book/'+b.id+'" role="tab">'+esc(b.title)+'</a>').join('')+'</div>'}
+let LANG='zh';try{LANG=localStorage.getItem('shufang.lang')||'zh'}catch(e){}
+const EN={'书架':'Shelf','时间线':'Timeline','概念':'Concepts','导出':'Export','‹ 返回书架':'‹ Back to shelf','书架是空的。添加你正在读的第一本书，读完后填写阅读笔记，读到想留下的段落时再记摘录与批注。':'Your shelf is empty. Add the first book you are reading, then write your reading notes.','在读':'Reading','读完':'Finished','想读':'Want to read','回看一条旧想法':'Revisit an old thought','打开这条记录，看看现在是否还这么想':'Open this note and see if you still think so','添加书籍':'Add a book','书名':'Title','作者':'Author','形式':'Format','分类':'Category','状态':'Status','作者国家':'Author’s country','纸质书':'Paper book','电子书':'E-book','选择或输入，例如：美国':'Choose or type, e.g. USA','选择或输入，例如：心理学':'Choose or type, e.g. Psychology','全部':'All','未分类':'Uncategorized','作者姓名':'Author name','未设置':'Not set','＋ 新建…':'＋ New…','输入名称':'Enter a name','确定':'OK','阅读笔记':'Reading notes','修改后自动保存':'Autosaves as you type','内容简介（可选）':'Summary (optional)','这本书整体在谈什么？用一两句话说清楚。':'What is this book about overall? Say it in a sentence or two.','核心观点':'Key arguments','· 用自己的话概括作者的主张，可标注立场（可选）':'· Summarize the author’s claims in your own words; mark your stance (optional)','作者的一个主张，以及他的理由':'One of the author’s claims, and the reasons for it','我的立场':'My stance','同意':'Agree','部分同意':'Partly agree','不同意':'Disagree','存疑':'Unsure','为什么这样想？（可选）':'Why do you think so? (optional)','添加观点':'Add an argument','删除观点':'Delete argument','我最喜欢的话':'Favorite lines','· 摘录原文，写下你的思考':'· Quote the original; write your thoughts','原文':'Quote','页码':'Page','我的思考：这句话让我想到什么？为什么打动我？（可选）':'My thoughts: what does this line bring to mind? Why did it move you? (optional)','删除图片':'Delete photo','删除这组提问':'Delete this set','追问这条':'Probe this one','免注册体验示例':'Try the demo (no sign-up)','用几本示例书看看产品是什么样子，数据只保存在这台设备上。':'Explore the product with a few sample books. Data stays on this device only.','你正在体验示例：数据只保存在这台设备上，AI 功能未开通。':'You are viewing a demo: data stays on this device and AI features are off.','重置示例':'Reset demo','登录 / 注册':'Sign in / Sign up','登录书房':'Sign in','输入邮箱，我们会发一封带登录链接的邮件。点开链接即可登录，不需要密码。首次使用的邮箱会自动注册。':'Enter your email and we will send you a sign-in link. No password needed; new emails are registered automatically.','邮箱':'Email','发送登录链接':'Send sign-in link','发送中…':'Sending…','加载中…':'Loading…','退出登录':'Sign out','已发送。请到邮箱点击登录链接（没收到的话，看看垃圾邮件）。':'Sent. Open the link in your email (check spam if you do not see it).','这个站点暂不开放新用户注册。':'New sign-ups are currently closed.','邮件发送太频繁，请过几分钟再试。':'Too many emails sent; please try again in a few minutes.','邮箱格式不对，请检查后重试。':'That email address looks invalid.','作者的原话':'The author’s own words','用自己的话转述作者的主张':'The author’s claim, in your own words','我怎么看，有什么联想':'What I think, what it reminds me of','我要做什么':'What I’ll do','拍下书页上的原话':'Photograph the page','还没有教练提问':'No coach questions yet','＋ 写一条摘录':'＋ Add an excerpt','＋ 写一条观点':'＋ Add an argument','＋ 写一条思考':'＋ Add a thought','＋ 写一条行动':'＋ Add an action','教练会根据你写的笔记来提问，先写下几条笔记吧。':'The coach asks questions based on your notes. Write a few notes first.','先写几条笔记，教练才有东西可以追问。':'Write a few notes first, so the coach has something to ask about.','换一组问题':'New set of questions','停止':'Stop','已停止':'Stopped','＋ 概念':'＋ Concept','输入概念，回车添加':'Type a concept, press Enter','教练的提问':'Coach’s questions','教练提问':'Coach Q&A','继续 ›':'Continue ›','还没有笔记，点开写下第一条':'No notes yet — open to write the first one','搜索书名、作者、作者国家、分类':'Search title, author, author’s country, category','全部作者国家':'All author countries','开始阅读时间：全部':'Started: any time','读完时间：全部':'Finished: any time','开始阅读日期':'Date started','读完日期':'Date finished','开始阅读时间':'Time started','读完时间':'Time finished','清除筛选':'Clear filters','没有找到匹配的书。':'No matching books.','已取消保存':'Save cancelled','当前环境不支持保存这种格式':'This format cannot be saved here','导出组件没有加载成功，请检查网络后重试':'Export component failed to load; check your network and retry','摘录、观点、思考、行动，按时间排在一起':'Excerpts, arguments, thoughts and actions, in time order','摘录＝作者的原话 · 观点＝用自己的话转述 · 思考＝我怎么看 · 行动＝我要做什么':'Excerpt = the author’s words · Argument = in your own words · Thought = what you think · Action = what you’ll do','📷 拍照摘录':'📷 Photo excerpt','这个类型下还没有笔记':'No notes of this type yet','自动建议概念：开':'Auto concept tags: on','自动建议概念：关':'Auto concept tags: off','✦ 建议概念':'✦ Suggest concepts','忽略':'Dismiss','正在建议概念…':'Suggesting concepts…','移除概念':'Remove concept','一句话概括（可选）':'One-line summary (optional)','这本书整体在谈什么？用一句话说清楚。':'What is this book about? Say it in one line.','更多信息':'More info','摘录':'Excerpts','原文、页码，和你读到它时的想法':'Quotes, page numbers, and what you thought while reading','＋ 添加摘录':'＋ Add excerpt','我的笔记':'My notes','思考、观点、行动都写在这里，按时间排列':'Thoughts, arguments and actions, in time order','＋ 写一条':'＋ Add note','思考':'Thought','观点':'Argument','行动':'Action','＋ 写下第一条笔记':'＋ Write the first note','回顾':'Review','‹ 回顾':'‹ Review','这里会按时间汇集你所有的笔记。写下第一条笔记后，这里就有内容了。':'Your notes gather here by time. Write your first note and it will appear.','在笔记里写 [[概念名]]，同一概念下的想法会汇集在一起':'Write [[concept]] in a note and everything under it gathers here','针对这条观点':'About this argument','思考中…':'Thinking…','写下你对这个问题的回答（可选）':'Write your answer to this question (optional)','此前的整体回答':'Earlier overall answer','添加一句':'Add a line','删除':'Delete','📷 拍照或上传图片':'📷 Take or upload a photo','识别图中文字':'Read text from photo','识别中…':'Reading…','识别失败，可重试':'Failed, try again','当前账号无法上传图片':'Photo upload unavailable','上传中…':'Uploading…','上传失败，请重试':'Upload failed, try again','摘录照片':'Photo of excerpt','我的思考与延伸':'My thoughts & extensions','想法会随时间变化，每次追加都会保留日期':'Ideas evolve; every entry keeps its date','＋ 追加':'＋ Add','我会怎么做':'What I’ll do','记下要采取的行动，做完可以打勾':'Note the actions you’ll take; tick them when done','＋ 写下第一条思考':'＋ Write the first thought','＋ 写下第一条行动':'＋ Write the first action','删除这条':'Delete this entry','读完后，我会做什么不同的事？':'What will I do differently after reading?','它有道理吗？它和我有什么关系？可以用 [[概念]] 连到别的书。':'Is it sound? What does it mean for me? Link ideas across books with [[concept]].','保存笔记':'Save notes','保存并返回书架':'Save & back to shelf','让教练提问':'Ask the coach','教练暂不可用':'Coach unavailable','教练暂未开通':'Coach not enabled','已保存 ✓':'Saved ✓','先写下几条核心观点或你的思考，教练才有东西可以追问。':'Write a few key arguments or thoughts first, so the coach has something to probe.','教练在读你的笔记…':'The coach is reading your notes…','你没有授权教练读取这段笔记，需要时可再点一次。':'You did not allow the coach to read these notes; click again if you want to.','教练暂时没有回应，稍后再试。':'The coach did not respond; try again later.','我的回答（可选）':'My answer (optional)','写下你的回答。想清楚了再写，也可以先空着。':'Write your answer. Take your time, or leave it blank for now.','删除这本书':'Delete this book','此前的摘录与批注':'Earlier excerpts & annotations','找不到这本书。':'Book not found.','回到书架':'Back to shelf','摘录':'Excerpt','时间线会记录你每次复盘时的想法。写下第一篇复盘后，这里就有内容了。':'The timeline records your thoughts over time. Write your first thought and it will appear here.','概念是跨书的线索。在思考里写 [[概念名]]，同一概念下的所有想法会汇集到这里。':'Concepts link ideas across books. Write [[concept]] in your thoughts and everything under it gathers here.','全部概念':'All concepts','按时间看这个想法如何变化':'See how this idea changed over time','还没有复盘提到这个概念。':'No notes mention this concept yet.','范围':'Scope','全部书籍':'All books','格式':'Format','图片':'Image','备份文件':'Backup file','导入备份文件（.json）':'Import backup file (.json)','关闭':'Close','正在生成…':'Generating…','书架还是空的，先添加一本书。':'Your shelf is empty; add a book first.','导出失败，请稍后再试。':'Export failed; please try again.','文件格式不对，导入失败':'Wrong file format; import failed','同步中…':'Syncing…','已同步到你的账号 ✓':'Synced to your account ✓','同步失败，稍后自动重试':'Sync failed; will retry','仅保存在本浏览器，请定期导出备份':'Saved only in this browser; export backups regularly','切换书籍':'Switch book','商业与管理':'Business & management','心理学':'Psychology','科技与AI':'Tech & AI','历史与社科':'History & social science','哲学':'Philosophy','文学':'Literature','传记':'Biography','其他':'Other','中国':'China','美国':'USA','英国':'UK','日本':'Japan','法国':'France','德国':'Germany','俄罗斯':'Russia','意大利':'Italy','加拿大':'Canada','澳大利亚':'Australia','韩国':'South Korea','印度':'India','奥地利':'Austria','瑞士':'Switzerland','荷兰':'Netherlands'};
+const SUB=[['佚名','Unknown'],['未分类','Uncategorized'],['纸质书','Paper book'],['电子书','E-book'],[' 条摘录与批注',' notes'],[' 条摘录',' quotes'],['已回答','Answered'],[' · 思考',' · Thought'],[' · 观点',' · Argument'],[' · 行动',' · Action'],['教练问答','Coach Q&A'],['最近 · ','Latest · '],[' · 摘录',' · Excerpt'],[' 开始',' started'],[' 读完',' finished'],['作者国家 ','Author’s country '],['针对：','On: '],['教练的提问','Coach’s questions'],['整本书','Whole book']];
+const RX=[[/^已保存 (\d\d:\d\d)$/,'Saved $1'],[/^出现在 (\d+) 本书、(\d+) 篇复盘$/,'In $1 book(s) · $2 note(s)'],[/^已导出：(.*)$/,'Exported: $1'],[/^已导入 (\d+) 本书$/,'Imported $1 book(s)'],[/^(\d{4})年(\d{2})月$/,'$1-$2'],[/^(\d{4})年$/,'$1'],[/^找到 (\d+) 本书 ·$/,'Found $1 book(s) ·'],[/^开始于 (\d{4})年(\d{2})月$/,'Started $1-$2'],[/^开始于 (\d{4})年$/,'Started $1'],[/^读完于 (\d{4})年(\d{2})月$/,'Finished $1-$2'],[/^读完于 (\d{4})年$/,'Finished $1']];
+function trText(s,el){if(LANG!=='en')return s;const k=s.trim();if(!k)return s;if(EN[k])return s.replace(k,EN[k]);for(const [r,v] of RX)if(r.test(k))return s.replace(k,k.replace(r,v));if(el&&el.closest&&el.closest('.meta')){let o=s;SUB.forEach(([a,b])=>{o=o.split(a).join(b)});return o}return s}
+function trNode(root){if(LANG!=='en'||!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),L=[];while(w.nextNode())L.push(w.currentNode);L.forEach(n=>{const p=n.parentElement;if(!p||p.closest('textarea,script,style'))return;const t=trText(n.nodeValue,p);if(t!==n.nodeValue)n.nodeValue=t});
+if(root.querySelectorAll)root.querySelectorAll('[placeholder],[aria-label],[alt]').forEach(e=>['placeholder','aria-label','alt'].forEach(a=>{const v=e.getAttribute(a);if(v&&EN[v.trim()])e.setAttribute(a,EN[v.trim()])}))}
+new MutationObserver(ms=>{if(LANG!=='en')return;ms.forEach(m=>{if(m.type==='characterData'){const p=m.target.parentElement;if(p&&!p.closest('textarea')){const t=trText(m.target.nodeValue,p);if(t!==m.target.nodeValue)m.target.nodeValue=t}}else m.addedNodes.forEach(n=>{if(n.nodeType===1)trNode(n);else if(n.nodeType===3&&n.parentElement)trNode(n.parentElement)})})}).observe(document.body,{childList:true,subtree:true,characterData:true});
+function applyLang(){document.documentElement.lang=LANG==='en'?'en':'zh-CN';const h=document.querySelector('header h1');if(h)h.textContent=LANG==='en'?'Reading Room':'书房';const b=$('#lang');if(b)b.textContent=LANG==='en'?'中文':'EN';document.title=LANG==='en'?'Reading Room · Book notes':'书房 · 读书复盘'}
+$('#lang').onclick=()=>{LANG=LANG==='en'?'zh':'en';try{localStorage.setItem('shufang.lang',LANG)}catch(e){}applyLang();setSync(_sy);route();trNode(document.body)};
+applyLang();
+$('#lo').onclick=()=>sb.auth.signOut();$('#demoexit').onclick=exitDemo;$('#demoreset').onclick=resetDemo;
+sb.auth.onAuthStateChange((ev,sess)=>{onSession(sess)});
+sb.auth.getSession().then(async({data})=>{booted=true;await onSession(data.session);if(!me){if(demo)startDemo();else route()}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull()});
+route();
+</script>
+</body>
+</html>
