@@ -46,21 +46,21 @@ Browser (single index.html, vanilla JS, no build step)
    │  fetch /.netlify/functions/ai  ──►  Netlify Function (ai.mjs)
    │                                        ├─ verifies the Supabase JWT
    │                                        ├─ checks ALLOWED_EMAILS (fails closed)
-   │                                        └─ calls Anthropic Messages API (key kept server-side)
+   │                                        └─ calls an LLM API (Gemini free tier or Anthropic; key kept server-side)
    ▼
 localStorage cache (per user) + per-book last-write-wins sync
 ```
 
 - **前端：** 单文件原生 JavaScript，无构建步骤；中英文通过 DOM 翻译层实现。
 - **后端：** Supabase（Auth + Postgres + Storage，行级安全 RLS：每人只能读写自己的数据）。
-- **AI：** Netlify Function 转发 Claude；API key 只存在服务器环境变量里；校验登录并按邮箱白名单放行。
+- **AI（可选）：** Netlify Function 转发大模型（支持 Gemini 免费额度或 Anthropic）；API key 只存在服务器环境变量里；校验登录并按邮箱白名单放行；未配置时前端自动隐藏所有 AI 入口。
 - **同步：** 每本书一行记录，带时间戳，本地为主、云端为辅，冲突时以最近修改为准。
 
 ## 部署
 
 1. **Supabase：** 新建项目，在 SQL Editor 运行 `supabase/schema.sql`。Authentication → URL Configuration：把 Site URL 和 Redirect URLs 设为你的网站地址。
 2. **改配置：** 在 `index.html` 里把 `SB_URL` 和 `SB_KEY`（publishable key，可公开）换成你自己的。
-3. **Netlify：** 连接本仓库（或把整个文件夹拖进 Deploys 页面）。在环境变量里设置 `ANTHROPIC_API_KEY` 和 `ALLOWED_EMAILS`（见 `.env.example`）。
+3. **Netlify：** 连接本仓库（或把整个文件夹拖进 Deploys 页面）。**AI 是可选的**：不设置任何 key 时，网站会自动隐藏 AI 功能，零成本运行；想启用，在环境变量里设置 `ALLOWED_EMAILS`，再二选一设置 `GEMINI_API_KEY`（Google AI Studio 有免费额度）或 `ANTHROPIC_API_KEY`（付费），详见 `.env.example`。
 4. 打开网站，用邮箱登录即可。
 
 > 提示：Netlify 免费版函数默认 10 秒超时；教练提问偶尔超时的话，把 `MODEL_DEFAULT` 设为更快的模型。
@@ -68,7 +68,7 @@ localStorage cache (per user) + per-book last-write-wins sync
 ## 数据与隐私
 
 - 笔记存在你自己的 Supabase 项目里，按用户隔离（RLS）；照片存在私有存储桶，用临时签名链接访问。
-- 使用 AI 功能时，相关笔记会发送给 Anthropic API 处理。
+- 使用 AI 功能时，相关笔记会发送给所配置的模型服务处理。若使用 Gemini 免费额度，Google 的条款允许其使用输入输出改进产品，请勿在启用 AI 时写入不愿被处理的内容；或者不配置 AI，仅使用笔记功能。
 - 任何时候都可以导出 Word / PDF / Markdown / JSON 备份。
 
 ## 已知限制与路线图
