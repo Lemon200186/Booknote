@@ -2,7 +2,7 @@
 
 > A reading-notes web app for people who want to think deeply over the long term: capture what an author said, what you made of it, what you decided, and let an AI coach ask the questions you would skip.
 
-**在线体验 / Demo:** `https://<your-site>.netlify.app`（填入你的部署地址）· 登录页有“**免注册体验示例**”，不用注册就能看到预置的几本示例书（含笔记流、概念标签、AI 教练的问答示例）。
+**在线体验 / Demo:** `https://shufang-reading-notes.netlify.app`· 登录页有“**免注册体验示例**”，不用注册就能看到预置的几本示例书（含笔记流、概念标签、AI 教练的问答示例）。
 **截图 / Screenshots:** 见 `docs/screenshots/`（部署后补充，建议清单见 `docs/PROJECT_BRIEF.md`）
 
 ---
