@@ -50,12 +50,12 @@
 
 ## 简历写法（请按真实情况修改，加入你自己的数据）
 **中文**
-- 独立完成“书房”读书笔记产品的需求定义、信息架构、交互设计与上线（Web，Supabase + Netlify + Claude API），经多轮真实使用反馈将十余个并列模块收敛为“一条笔记流 + 四类笔记”。
+- 独立完成“书房”读书笔记产品的需求定义、信息架构、交互设计与上线（Web，Supabase + Netlify + Gemini API 免费额度），经多轮真实使用反馈将十余个并列模块收敛为“一条笔记流 + 四类笔记”。
 - 设计“只提问不代写”的 AI 教练与“AI 建议、人确认”的概念标签机制，并以字数 / 停顿门槛、轻量模型和一键关闭控制成本与打扰。
 - 搭建邮箱登录、实时云端同步与服务端 AI 转发（JWT 校验、邮箱白名单、API key 不暴露），支持中英文与 Word / PDF / 图片导出。
 
 **English**
-- Defined, designed, and shipped *Shufang*, a reading-notes web app (Supabase, Netlify, Claude API); consolidated a dozen parallel modules into a single note stream with four note types after iterating on real usage feedback.
+- Defined, designed, and shipped *Shufang*, a reading-notes web app (Supabase, Netlify, Gemini API free tier); consolidated a dozen parallel modules into a single note stream with four note types after iterating on real usage feedback.
 - Designed an AI coach that only asks questions (never ghost-writes) and a suggest-then-confirm concept-tagging flow, with cost and interruption controls (length/idle thresholds, lightweight model, one-click off).
 - Built email magic-link auth, real-time cloud sync, and a server-side AI proxy (JWT verification, email allowlist, key never exposed); added bilingual UI and Word/PDF/image export.
 
