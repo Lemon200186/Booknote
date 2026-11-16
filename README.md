@@ -93,4 +93,4 @@ MIT
 
 **Shufang** is a reading-notes web app built around one idea: reading only pays off if your *thinking* compounds. Each book has a single time-ordered stream of four note types — **excerpt** (the author’s words, with photo capture), **argument** (the author’s claim in your own words, with your stance), **thought**, and **action**. An **AI coach asks questions but never writes for you**, an AI suggests **concept tags** you confirm so ideas link across books, and a **review page** shows how your thinking on a concept changes over time.
 
-Stack: vanilla JS single page, Supabase (email magic-link auth, Postgres with RLS, private Storage), a Netlify Function that proxies the Anthropic API (JWT-verified, email-allowlisted, key never exposed), bilingual UI (中 / EN), exports to Word / PDF / image / Markdown.
+Stack: vanilla JS single page, Supabase (email magic-link auth, Postgres with RLS, private Storage), a Netlify Function that proxies an LLM API (Google Gemini free tier, or Anthropic) (JWT-verified, email-allowlisted, key never exposed), bilingual UI (中 / EN), exports to Word / PDF / image / Markdown.
